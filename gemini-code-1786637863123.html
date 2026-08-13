@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>World Monitor</title>
+    <style>
+        body { font-family: monospace; background-color: #121212; color: #e0e0e0; padding: 20px; margin: 0; }
+        h1 { color: #ffffff; border-bottom: 1px solid #333; padding-bottom: 10px; }
+        .grid { display: grid; grid-template-columns: 1fr; gap: 20px; margin-top: 20px; }
+        .panel { background-color: #1e1e1e; padding: 15px; border-radius: 5px; border: 1px solid #333; }
+        .panel h2 { margin-top: 0; color: #ff9800; font-size: 1.2rem; }
+    </style>
+</head>
+<body>
+
+    <h1>🌎 World Monitor</h1>
+    <div id="status" style="color: #64b5f6;">Cargando sistema...</div>
+    
+    <!-- Aquí es donde los módulos inyectarán la información -->
+    <div id="dashboard" class="grid"></div>
+
+    <!-- Carga nuestro archivo de JavaScript principal -->
+    <script type="module" src="./main.js"></script>
+
+</body>
+</html>

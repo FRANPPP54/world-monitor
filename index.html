@@ -1,0 +1,52 @@
+// Componente de React simplificado
+
+import React, { useState } from 'react';
+import YouTube from 'react-youtube'; // Una librería popular para manejar el Iframe API
+
+const NoticiasApp = () => {
+  // Estado para el ID del video activo
+  const [videoId, setVideoId] = useState('ID_DE_VIDEO_POR_DEFECTO');
+
+  // Opciones para el reproductor de YouTube
+  const opts = {
+    height: '100%',
+    width: '100%',
+    playerVars: {
+      autoplay: 1, // Auto-reproducir al cambiar
+      modestbranding: 1, // Ocultar logo de YT
+    },
+  };
+
+  // Función para cambiar el video
+  const handleChannelChange = (newId) => {
+    setVideoId(newId);
+  };
+
+  return (
+    <div className="app-container">
+      {/* Barra de Canales */}
+      <div className="channels-bar">
+        <button onClick={() => handleChannelChange('ID_BLOOMBERG')}>BLOOMBERG</button>
+        <button onClick={() => handleChannelChange('ID_SKYNEWS')}>SKYNEWS</button>
+        <button onClick={() => handleChannelChange('ID_EURONEWS')}>EURONEWS</button>
+        {/* Y así sucesivamente */}
+      </div>
+
+      {/* Reproductor de Video */}
+      <div className="video-container">
+        <YouTube videoId={videoId} opts={opts} />
+      </div>
+
+      {/* Módulos de Insights y Noticias (Renderizado condicional o datos mapeados) */}
+      <div className="insights-module">
+         {/* Aquí iría tu resumen generado por IA */}
+      </div>
+      <div className="news-list">
+         {/* Aquí mapearías tus artículos */}
+      </div>
+
+    </div>
+  );
+};
+
+export default NoticiasApp;

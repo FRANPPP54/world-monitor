@@ -346,7 +346,7 @@
     }
 
     .world-stage {
-      min-height: 520px;
+      aspect-ratio: 2 / 1;
       border-radius: 24px;
       border: 1px solid rgba(0, 180, 100, 0.22);
       position: relative;
@@ -1058,7 +1058,6 @@
         grid-template-columns: 1fr;
       }
       .command-row { grid-template-columns: 1fr; }
-      .world-stage { min-height: 620px; }
       .map-hud {
         position: static;
         width: 100%;
@@ -1068,7 +1067,6 @@
         position: static;
         padding: 20px 20px 0;
       }
-      .hotspot-layer { top: 84px; }
     }
 
     @media (max-width: 560px) {
@@ -1183,8 +1181,10 @@
               </div>
             </div>
 
-            <div class="hotspot-layer" id="hotspotLayer"></div>
-            <div class="hotspot-layer" id="tacticalLayer"></div>
+            <div id="mapArea" style="position:absolute;pointer-events:none;">
+              <div class="hotspot-layer" id="hotspotLayer"></div>
+              <div class="hotspot-layer" id="tacticalLayer"></div>
+            </div>
             <div class="focus-strip" id="focusStrip"></div>
 
             <!-- Marker tooltip -->
@@ -1894,6 +1894,26 @@
       [[0.0,0.956],[0.3,0.928],[0.5,0.922],[0.7,0.928],[1.0,0.956],[1.0,1.0],[0.0,1.0]]
     ];
 
+    // Map layout helpers — shared by canvas draw and marker placement
+    // Computes the letterboxed rect for the 2:1 world map inside the canvas.
+    function getMapRect(W, H) {
+      const mapAspect = 2; // world map width:height ratio
+      let mW = W, mH = H;
+      if (W / H > mapAspect) {
+        mW = H * mapAspect;
+      } else {
+        mH = W / mapAspect;
+      }
+      const ox = (W - mW) / 2;
+      const oy = (H - mH) / 2;
+      return { ox, oy, mW, mH };
+    }
+
+    // Convert normalized map coords [0-1] to canvas pixels
+    function mapToCanvas(nx, ny, rect) {
+      return { px: rect.ox + nx * rect.mW, py: rect.oy + ny * rect.mH };
+    }
+
     function drawTacticalMap() {
       if (!tacticalCanvas) return;
       const stage = worldStage;
@@ -1905,30 +1925,39 @@
       tacticalCanvas.height = H;
       const ctx = tacticalCanvas.getContext('2d');
 
+      // Size the marker overlay to the letterboxed map rect
+      const rect = getMapRect(W, H);
+      const mapArea = document.getElementById('mapArea');
+      if (mapArea) {
+        mapArea.style.left   = rect.ox + 'px';
+        mapArea.style.top    = rect.oy + 'px';
+        mapArea.style.width  = rect.mW + 'px';
+        mapArea.style.height = rect.mH + 'px';
+      }
+
       // Background
       ctx.fillStyle = '#050e07';
       ctx.fillRect(0, 0, W, H);
 
-      // Grid lines
+      // Grid lines (only over the map area)
       ctx.strokeStyle = 'rgba(0, 140, 70, 0.18)';
       ctx.lineWidth = 0.5;
-      const gridCols = Math.ceil(W / 40);
-      const gridRows = Math.ceil(H / 40);
+      const gridCols = Math.ceil(rect.mW / 40);
+      const gridRows = Math.ceil(rect.mH / 40);
       for (let i = 0; i <= gridCols; i++) {
-        const x = (i / gridCols) * W;
-        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+        const x = rect.ox + (i / gridCols) * rect.mW;
+        ctx.beginPath(); ctx.moveTo(x, rect.oy); ctx.lineTo(x, rect.oy + rect.mH); ctx.stroke();
       }
       for (let j = 0; j <= gridRows; j++) {
-        const y = (j / gridRows) * H;
-        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+        const y = rect.oy + (j / gridRows) * rect.mH;
+        ctx.beginPath(); ctx.moveTo(rect.ox, y); ctx.lineTo(rect.ox + rect.mW, y); ctx.stroke();
       }
 
       // Draw continents
       continents.forEach(poly => {
         ctx.beginPath();
         poly.forEach(([nx, ny], i) => {
-          const px = nx * W;
-          const py = ny * H;
+          const { px, py } = mapToCanvas(nx, ny, rect);
           if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
         });
         ctx.closePath();
@@ -1939,8 +1968,10 @@
         ctx.stroke();
       });
 
-      // Subtle radar glow at center
-      const radGrad = ctx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.45, Math.max(W, H) * 0.45);
+      // Subtle radar glow at map center
+      const cx = rect.ox + rect.mW * 0.5;
+      const cy = rect.oy + rect.mH * 0.45;
+      const radGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rect.mW, rect.mH) * 0.45);
       radGrad.addColorStop(0, 'rgba(0, 180, 80, 0.06)');
       radGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radGrad;

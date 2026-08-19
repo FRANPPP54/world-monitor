@@ -782,10 +782,15 @@
 
     .metric-card {
       border: 1px solid rgba(148, 163, 184, 0.16);
+      border-left: 3px solid var(--accent);
       border-radius: 18px;
       padding: 14px;
       background: linear-gradient(180deg, rgba(13, 25, 42, 0.95), rgba(8, 16, 28, 0.95));
     }
+
+    .metric-card.trend-up-card  { border-left-color: var(--critical); }
+    .metric-card.trend-down-card { border-left-color: var(--ok); }
+    .metric-card.trend-flat-card { border-left-color: var(--accent-2); }
 
     .metric-label {
       color: var(--muted);
@@ -825,6 +830,19 @@
       border-radius: 16px;
       padding: 12px;
       background: rgba(9, 18, 32, 0.82);
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .list-row:hover {
+      border-color: rgba(96, 165, 250, 0.3);
+      background: rgba(9, 18, 48, 0.9);
+    }
+
+    .list-row.focused {
+      border-color: rgba(96, 165, 250, 0.5);
+      background: rgba(9, 18, 52, 0.95);
+      box-shadow: 0 0 0 1px rgba(96, 165, 250, 0.2);
     }
 
     .list-row-top {
@@ -910,6 +928,19 @@
       border-radius: 50%;
       background: var(--accent-2);
       box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+      flex-shrink: 0;
+    }
+    .alert-dot.critical {
+      background: var(--critical);
+      box-shadow: 0 0 12px rgba(239, 68, 68, 0.7);
+    }
+    .alert-dot.elevated {
+      background: var(--elevated);
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.7);
+    }
+    .alert-dot.watch {
+      background: var(--watch);
+      box-shadow: 0 0 12px rgba(250, 204, 21, 0.7);
     }
 
     .alert-meta {
@@ -1023,11 +1054,21 @@
       border: 0;
       background: transparent;
       color: var(--muted);
-      padding: 10px 8px;
+      padding: 8px 8px;
       border-radius: 14px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       cursor: pointer;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3px;
+      line-height: 1;
+    }
+
+    .bottom-nav button .nav-icon {
+      font-size: 18px;
+      line-height: 1;
     }
 
     .bottom-nav button.active {
@@ -1052,11 +1093,11 @@
     @media (max-width: 840px) {
       body { padding: 12px 12px 92px; }
       .command-tabs,
-      .metric-grid,
       .focus-strip,
       .kpi-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
       }
+      .metric-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .command-row { grid-template-columns: 1fr; }
       .world-stage { aspect-ratio: 1.35 / 1; }
       .map-hud {
@@ -1083,6 +1124,8 @@
         font-size: 10px;
         padding: 2px 7px;
       }
+      .brand p { display: none; }
+      .topbar { gap: 10px; }
     }
 
     @media (max-width: 560px) {
@@ -1094,6 +1137,7 @@
       .bottom-nav button { font-size: 10px; }
       .alert-row { grid-template-columns: 1fr; }
       .source-row { align-items: flex-start; flex-direction: column; }
+      #mapState { display: none; }
     }
   </style>
 </head>
@@ -1314,11 +1358,11 @@
   </div>
 
   <nav class="bottom-nav" id="bottomNav">
-    <button class="active" data-target="overviewSection">Today</button>
-    <button data-target="mapSection">Map</button>
-    <button data-target="commandCenter">Search</button>
-    <button data-target="insightSection">Brief</button>
-    <button data-target="liveSection">Live</button>
+    <button class="active" data-target="overviewSection"><span class="nav-icon">🗓</span>Today</button>
+    <button data-target="mapSection"><span class="nav-icon">🗺</span>Map</button>
+    <button data-target="commandCenter"><span class="nav-icon">🔍</span>Search</button>
+    <button data-target="insightSection"><span class="nav-icon">🤖</span>Brief</button>
+    <button data-target="liveSection"><span class="nav-icon">📡</span>Live</button>
   </nav>
 
   <script>
@@ -1607,9 +1651,11 @@
       watchlistData.forEach(item => {
         const row = document.createElement('div');
         row.className = 'list-row';
+        row.dataset.country = item.country;
+        const icon = THREAT_ICONS[item.type] || '';
         row.innerHTML = `
           <div class="list-row-top">
-            <strong>${item.country}</strong>
+            <strong>${icon ? icon + ' ' : ''}${item.country}</strong>
             <span class="severity ${item.severityClass}">${item.level}</span>
           </div>
           <p>${item.focus} · ${item.note}</p>
@@ -1661,16 +1707,18 @@
       metricGrid.innerHTML = '';
       metricsData.forEach(item => {
         const card = document.createElement('div');
-        card.className = 'metric-card';
-        card.innerHTML = `
-          <div class="metric-label">${item.label}</div>
-          <div class="metric-value">${item.value}</div>
-          <div class="metric-foot">
-            <span>${item.footA}</span>
-            <span class="trend-${item.trend}">${item.footB}</span>
-          </div>
-        `;
+        card.className = `metric-card trend-${item.trend}-card`;
+        const valueEl = document.createElement('div');
+        valueEl.className = 'metric-value';
+        valueEl.textContent = '0';
+        card.innerHTML = `<div class="metric-label">${item.label}</div>`;
+        card.appendChild(valueEl);
+        const foot = document.createElement('div');
+        foot.className = 'metric-foot';
+        foot.innerHTML = `<span>${item.footA}</span><span class="trend-${item.trend}">${item.footB}</span>`;
+        card.appendChild(foot);
         metricGrid.appendChild(card);
+        countUp(valueEl, parseFloat(item.value) || 0, 1200);
       });
     }
 
@@ -1689,19 +1737,27 @@
       alertCards.forEach(item => {
         const card = document.createElement('section');
         card.className = 'panel';
-        card.innerHTML = `
-          <div class="panel-body">
-            <div class="metric-label">${item.label}</div>
-            <div class="metric-value">${item.value}</div>
-            <div class="metric-foot">
-              <span>${item.footA}</span>
-              <span class="trend-${item.trend}">${item.footB}</span>
-            </div>
-          </div>
-        `;
+        const valueEl = document.createElement('div');
+        valueEl.className = 'metric-value';
+        valueEl.textContent = '0';
+        const body = document.createElement('div');
+        body.className = 'panel-body';
+        const label = document.createElement('div');
+        label.className = 'metric-label';
+        label.textContent = item.label;
+        const foot = document.createElement('div');
+        foot.className = 'metric-foot';
+        foot.innerHTML = `<span>${item.footA}</span><span class="trend-${item.trend}">${item.footB}</span>`;
+        body.appendChild(label);
+        body.appendChild(valueEl);
+        body.appendChild(foot);
+        card.appendChild(body);
         scoreSection.appendChild(card);
+        countUp(valueEl, parseFloat(item.value) || 0, 1400);
       });
     }
+
+    const VALID_LEVELS = new Set(['critical', 'elevated', 'watch']);
 
     function renderAlertFeed() {
       alertCount.textContent = `${alertsFeed.length} abiertas`;
@@ -1710,7 +1766,7 @@
         const row = document.createElement('div');
         row.className = 'alert-row';
         row.innerHTML = `
-          <span class="alert-dot"></span>
+          <span class="alert-dot ${VALID_LEVELS.has(item.level) ? item.level : ''}"></span>
           <div>
             <strong>${item.title}</strong>
             <div class="alert-meta">${item.time} · ${item.source}</div>
@@ -1767,6 +1823,7 @@
         const row = document.createElement('div');
         row.className = 'list-row';
         row.id = `risk-${slugify(item.country)}`;
+        row.dataset.country = item.country;
         row.innerHTML = `
           <div class="list-row-top">
             <strong>${icon ? icon + ' ' : ''}${item.country}</strong>
@@ -1793,6 +1850,11 @@
       hudConvergenceDetail.textContent = item.convergenceDetail;
       hudWindow.textContent = item.window;
       hudWindowDetail.textContent = item.windowDetail;
+
+      // Highlight focused row in watchlist and risk list
+      document.querySelectorAll('.list-row').forEach(row => {
+        row.classList.toggle('focused', normalizeCommand(row.dataset.country || '') === normalizeCommand(item.country));
+      });
 
       document.querySelectorAll('.hotspot-label').forEach(label => {
         label.style.borderColor = 'rgba(148, 163, 184, 0.18)';
@@ -2249,6 +2311,18 @@
     commandInput.addEventListener('keydown', event => {
       if (event.key === 'Enter') runCommand();
     });
+
+    function countUp(el, target, duration) {
+      if (!isFinite(target)) return;
+      const start = performance.now();
+      const step = ts => {
+        const progress = Math.min((ts - start) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3);
+        el.textContent = String(Math.round(eased * target));
+        if (progress < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    }
 
     renderTicker();
     renderWatchlist();

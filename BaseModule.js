@@ -1,4 +1,4 @@
-import { CacheManager } from '../core/CacheManager.js';
+import { CacheManager } from './src/core/cacheManager.js';
 
 export class BaseModule {
   constructor(name, cacheTtl = 30) {

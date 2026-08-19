@@ -280,15 +280,20 @@
     }
 
     .tab.active,
-    .map-btn.active,
+    .map-btn.active {
+      background: #4ade80;
+      border-color: #4ade80;
+      color: #022c0e !important;
+    }
+
     .channel-btn.active,
     .nav-btn:hover,
     .tab:hover,
     .map-btn:hover,
     .ghost-btn:hover,
     .run-btn:hover {
-      background: rgba(0, 160, 80, 0.22);
-      border-color: rgba(0, 200, 100, 0.38);
+      background: rgba(0, 180, 140, 0.22);
+      border-color: rgba(0, 200, 160, 0.40);
       color: #fff;
     }
 
@@ -348,11 +353,11 @@
     .world-stage {
       aspect-ratio: 2 / 1;
       border-radius: 24px;
-      border: 1px solid rgba(0, 180, 100, 0.22);
+      border: 1px solid rgba(0, 200, 160, 0.28);
       position: relative;
       overflow: hidden;
-      background: #050e07;
-      box-shadow: inset 0 0 0 1px rgba(0, 200, 100, 0.06), 0 0 60px rgba(0, 120, 60, 0.12);
+      background: #030d0b;
+      box-shadow: inset 0 0 0 1px rgba(0, 200, 160, 0.08), 0 0 60px rgba(0, 120, 90, 0.15);
     }
 
     .world-stage::after {
@@ -360,7 +365,7 @@
       position: absolute;
       inset: auto 24px 20px 24px;
       height: 80px;
-      background: linear-gradient(180deg, transparent, rgba(5, 14, 7, 0.9));
+      background: linear-gradient(180deg, transparent, rgba(3, 13, 11, 0.9));
       border-radius: 0;
       pointer-events: none;
       z-index: 1;
@@ -476,17 +481,17 @@
       z-index: 5;
     }
     .hotspot-dot {
-      width: 16px;
-      height: 16px;
+      width: 22px;
+      height: 22px;
       border-radius: 50%;
       background: #f97316;
-      box-shadow: 0 0 12px rgba(249, 115, 22, 0.75);
+      box-shadow: 0 0 14px rgba(249, 115, 22, 0.9), 0 0 32px rgba(249, 115, 22, 0.45);
       animation: hotspotPulse 2.5s ease-in-out infinite;
     }
-    .hotspot-dot.red { background: #ef4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.75); }
+    .hotspot-dot.red { background: #ef4444; box-shadow: 0 0 14px rgba(239, 68, 68, 0.9), 0 0 32px rgba(239, 68, 68, 0.45); }
     @keyframes hotspotPulse {
       0%, 100% { transform: scale(1); }
-      50% { transform: scale(1.4); }
+      50% { transform: scale(1.35); }
     }
 
     /* Warning triangle */
@@ -495,14 +500,33 @@
       transform: translate(-50%, -50%);
       cursor: pointer;
       z-index: 5;
-      font-size: 20px;
-      filter: drop-shadow(0 0 6px rgba(250, 200, 20, 0.7));
+      font-size: 22px;
+      filter: drop-shadow(0 0 8px rgba(239, 68, 68, 0.85));
       animation: warnBlink 2s ease-in-out infinite;
       line-height: 1;
+      color: #ef4444;
     }
     @keyframes warnBlink {
       0%, 100% { opacity: 1; }
-      50% { opacity: 0.5; }
+      50% { opacity: 0.45; }
+    }
+
+    /* Antenna / satellite dish marker */
+    .marker-antenna {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      opacity: 0.82;
+      filter: drop-shadow(0 0 5px rgba(200, 230, 255, 0.5));
+    }
+    .antenna-icon {
+      width: 24px;
+      height: 24px;
     }
 
     /* Iceberg marker */
@@ -542,7 +566,7 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: radial-gradient(circle at center, rgba(0, 80, 40, 0.4), #050e07 70%);
+      background: radial-gradient(circle at center, rgba(0, 100, 80, 0.4), #030d0b 70%);
     }
     .globe-sphere {
       width: 300px;
@@ -1913,9 +1937,9 @@
         info: 'Actividad naval · Estrecho de Taiwán · Alta tensión' }
     ];
 
-    // Radar-style satellite / antenna SVG icons in Antarctica region
+    // Radar-style satellite / antenna SVG icons
     const antennaMarkers = [
-      { x: 44, y: 78 }, { x: 50, y: 79 }, { x: 60, y: 78 }
+      { x: 43, y: 73 }, { x: 52, y: 74 }, { x: 79, y: 75 }
     ];
 
     // ── Tactical Canvas Rendering ───────────────────────────────────────────
@@ -2015,12 +2039,12 @@
       }
 
       // Background
-      ctx.fillStyle = '#050e07';
+      ctx.fillStyle = '#030d0b';
       ctx.fillRect(0, 0, W, H);
 
       // Grid lines (only over the map area)
-      ctx.strokeStyle = 'rgba(0, 140, 70, 0.18)';
-      ctx.lineWidth = 0.5;
+      ctx.strokeStyle = 'rgba(0, 180, 140, 0.25)';
+      ctx.lineWidth = 0.6;
       const gridCols = Math.ceil(rect.mW / 40);
       const gridRows = Math.ceil(rect.mH / 40);
       for (let i = 0; i <= gridCols; i++) {
@@ -2040,9 +2064,9 @@
           if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
         });
         ctx.closePath();
-        ctx.fillStyle = 'rgba(0, 100, 60, 0.55)';
+        ctx.fillStyle = 'rgba(5, 90, 75, 0.65)';
         ctx.fill();
-        ctx.strokeStyle = 'rgba(0, 200, 100, 0.28)';
+        ctx.strokeStyle = 'rgba(0, 200, 160, 0.40)';
         ctx.lineWidth = 0.8;
         ctx.stroke();
       });
@@ -2051,7 +2075,7 @@
       const cx = rect.ox + rect.mW * 0.5;
       const cy = rect.oy + rect.mH * 0.45;
       const radGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rect.mW, rect.mH) * 0.45);
-      radGrad.addColorStop(0, 'rgba(0, 180, 80, 0.06)');
+      radGrad.addColorStop(0, 'rgba(0, 180, 140, 0.07)');
       radGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radGrad;
       ctx.fillRect(0, 0, W, H);
@@ -2164,6 +2188,23 @@
         el.addEventListener('mouseleave', hideTooltip);
         el.addEventListener('touchstart', e => showTooltipTouch(el, warn.name, warn.info, e), { passive: false });
         el.addEventListener('click', () => showTooltip(el, warn.name, warn.info));
+        layer.appendChild(el);
+      });
+
+      // ── Antenna / satellite dish markers ──
+      layer.querySelectorAll('.marker-antenna').forEach(el => el.remove());
+      const antennaSVG = `<svg class="antenna-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="12" y1="22" x2="12" y2="11" stroke="rgba(200,220,255,0.85)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M6 17 Q12 7 18 17" stroke="rgba(200,220,255,0.85)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M4 20 Q12 2 20 20" stroke="rgba(200,220,255,0.4)" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <circle cx="12" cy="11" r="2" fill="rgba(200,220,255,0.9)"/>
+      </svg>`;
+      antennaMarkers.forEach(ant => {
+        const el = document.createElement('div');
+        el.className = 'marker-antenna';
+        el.style.left = ant.x + '%';
+        el.style.top  = ant.y + '%';
+        el.innerHTML = antennaSVG;
         layer.appendChild(el);
       });
     }

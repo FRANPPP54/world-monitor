@@ -3,65 +3,225 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>World Monitor - Noticias en Vivo</title>
+  <title>World Monitor · Control de Inteligencia Global</title>
   <style>
     :root {
-      --bg: #0f1116;
-      --panel: #171b23;
-      --panel-2: #1d2230;
-      --line: #2a3243;
-      --text: #eef2ff;
-      --muted: #97a2b7;
-      --accent: #ef4444;
-      --ok: #22c55e;
-      --warn: #f59e0b;
-      --critical: var(--accent);
+      --bg: #07111f;
+      --bg-2: #0b1728;
+      --panel: rgba(10, 21, 37, 0.92);
+      --panel-2: rgba(15, 29, 48, 0.95);
+      --line: rgba(122, 153, 194, 0.18);
+      --line-strong: rgba(122, 153, 194, 0.3);
+      --text: #eef4ff;
+      --muted: #8da0bf;
+      --accent: #3b82f6;
+      --accent-2: #38bdf8;
+      --critical: #ef4444;
       --elevated: #f97316;
       --watch: #facc15;
+      --ok: #22c55e;
+      --shadow: 0 16px 40px rgba(0, 0, 0, 0.35);
+      --radius: 20px;
     }
 
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
 
     body {
       margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: var(--bg);
+      min-height: 100vh;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       color: var(--text);
-      padding: 16px 16px 90px;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.15), transparent 22%),
+        radial-gradient(circle at top right, rgba(59, 130, 246, 0.18), transparent 28%),
+        linear-gradient(180deg, #050d18 0%, #07111f 45%, #050a13 100%);
+      padding: 18px 18px 84px;
     }
 
-    .app {
-      width: min(980px, 100%);
+    .shell {
+      width: min(1440px, 100%);
       margin: 0 auto;
       display: grid;
-      gap: 12px;
+      gap: 16px;
     }
 
-    .title {
-      text-align: center;
-      font-size: clamp(26px, 5vw, 42px);
-      font-weight: 800;
-      margin: 8px 0 2px;
-      letter-spacing: .2px;
+    .topbar,
+    .ticker,
+    .panel {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      backdrop-filter: blur(18px);
+      box-shadow: var(--shadow);
     }
 
-    .subtitle {
+    .topbar {
+      border-radius: 24px;
+      padding: 18px 22px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .brand-mark {
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(56, 189, 248, 0.75), transparent 45%),
+        linear-gradient(135deg, rgba(59, 130, 246, 0.5), rgba(15, 23, 42, 1));
+      border: 1px solid rgba(125, 211, 252, 0.25);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      inset: 9px;
+      border-radius: 12px;
+      border: 1px solid rgba(191, 219, 254, 0.25);
+    }
+
+    .brand h1 {
       margin: 0;
+      font-size: clamp(26px, 4vw, 38px);
+      line-height: 1;
+      letter-spacing: -0.03em;
+    }
+
+    .brand p {
+      margin: 6px 0 0;
       color: var(--muted);
-      text-align: center;
       font-size: 13px;
     }
 
-    .card {
-      background: var(--panel);
-      border: 1px solid var(--line);
-      border-radius: 16px;
-      overflow: hidden;
-      box-shadow: 0 10px 24px rgba(0, 0, 0, .3);
+    .top-actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: flex-end;
     }
 
-    .card-head {
-      padding: 14px 16px;
+    .pill,
+    .ghost-btn,
+    .solid-btn,
+    .mini-badge,
+    .severity,
+    .channel-btn {
+      border-radius: 999px;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid var(--line);
+      color: #dbe9ff;
+      background: rgba(15, 29, 48, 0.88);
+      font-size: 12px;
+    }
+
+    .pulse {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--ok);
+      box-shadow: 0 0 14px rgba(34, 197, 94, 0.8);
+    }
+
+    .ghost-btn,
+    .solid-btn,
+    .tab,
+    .nav-btn,
+    .map-btn,
+    .run-btn {
+      border: 1px solid var(--line);
+      background: rgba(9, 18, 31, 0.78);
+      color: var(--text);
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+
+    .ghost-btn,
+    .solid-btn {
+      padding: 10px 14px;
+      font-size: 12px;
+    }
+
+    .solid-btn {
+      background: linear-gradient(135deg, rgba(59, 130, 246, 0.95), rgba(14, 165, 233, 0.95));
+      border-color: rgba(147, 197, 253, 0.35);
+    }
+
+    .ticker {
+      border-radius: 18px;
+      overflow: hidden;
+      padding: 12px 0;
+      position: relative;
+    }
+
+    .ticker-track {
+      display: flex;
+      gap: 40px;
+      min-width: max-content;
+      padding-left: 24px;
+      animation: tickerMove 38s linear infinite;
+    }
+
+    .ticker-item {
+      color: #d6e5ff;
+      font-size: 13px;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .ticker-label {
+      color: #7dd3fc;
+      font-weight: 800;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.08em;
+    }
+
+    @keyframes tickerMove {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 280px minmax(0, 1fr) 320px;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .stack {
+      display: grid;
+      gap: 16px;
+    }
+
+    .panel {
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .panel-head {
+      padding: 16px 18px;
       border-bottom: 1px solid var(--line);
       display: flex;
       align-items: center;
@@ -69,231 +229,472 @@
       gap: 10px;
     }
 
-    .card-head h2 {
+    .panel-head h2,
+    .panel-head h3 {
       margin: 0;
-      font-size: 14px;
-      letter-spacing: .9px;
+      font-size: 13px;
       text-transform: uppercase;
+      letter-spacing: 0.09em;
     }
 
-    .body-pad { padding: 14px; }
-
-    .dot {
-      width: 10px;
-      height: 10px;
-      border-radius: 50%;
-      background: var(--critical);
-      box-shadow: 0 0 12px var(--critical);
-      display: inline-block;
-      margin-right: 8px;
-      vertical-align: middle;
+    .panel-body {
+      padding: 18px;
     }
 
-    .tag {
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      padding: 4px 10px;
-      font-size: 11px;
-      color: var(--muted);
-      background: #131722;
-    }
-
-    .tabs {
+    .quick-nav {
       display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
       gap: 8px;
-      padding: 12px;
-      border-bottom: 1px solid var(--line);
     }
 
-    .tab {
-      border: 1px solid var(--line);
-      background: #151a24;
-      color: #afbbcf;
-      border-radius: 10px;
-      padding: 9px 8px;
-      font-weight: 700;
+    .nav-btn {
+      width: 100%;
+      text-align: left;
+      border-radius: 14px;
+      padding: 13px 14px;
+      font-size: 13px;
+    }
+
+    .nav-btn span {
+      display: block;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    .command-tabs {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .tab,
+    .map-btn,
+    .run-btn {
+      border-radius: 12px;
+      padding: 11px 10px;
       font-size: 12px;
-      cursor: pointer;
+      font-weight: 700;
     }
 
-    .tab.active {
-      background: #20283a;
+    .tab.active,
+    .map-btn.active,
+    .channel-btn.active,
+    .nav-btn:hover,
+    .tab:hover,
+    .map-btn:hover,
+    .ghost-btn:hover,
+    .run-btn:hover {
+      background: rgba(37, 99, 235, 0.22);
+      border-color: rgba(96, 165, 250, 0.38);
       color: #fff;
-      border-color: #374258;
     }
 
     .command-row {
       display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
       gap: 10px;
-      grid-template-columns: 1fr auto;
       align-items: center;
     }
 
     .command-input {
       width: 100%;
       border: 1px solid var(--line);
-      background: #0f1420;
-      color: #fff;
-      border-radius: 10px;
-      padding: 12px;
+      background: rgba(6, 12, 22, 0.9);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 13px 14px;
       font-size: 14px;
       outline: none;
     }
 
-    .btn {
-      border: 1px solid #3a455d;
-      background: #20293a;
-      color: #fff;
-      padding: 11px 14px;
-      border-radius: 10px;
-      font-weight: 700;
-      font-size: 12px;
-      cursor: pointer;
+    .command-input:focus {
+      border-color: rgba(96, 165, 250, 0.45);
+      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.08);
     }
 
     .command-feedback {
-      margin-top: 8px;
-      font-size: 12px;
-      color: var(--muted);
+      margin-top: 10px;
       min-height: 18px;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+
+    .map-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
     }
 
     .map-toggle {
       display: inline-flex;
-      border: 1px solid var(--line);
-      border-radius: 10px;
+      gap: 8px;
+    }
+
+    .mini-badge {
+      padding: 8px 12px;
+      font-size: 11px;
+      color: #bfdbfe;
+      border: 1px solid rgba(59, 130, 246, 0.24);
+      background: rgba(15, 23, 42, 0.82);
+    }
+
+    .world-stage {
+      min-height: 500px;
+      border-radius: 24px;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      position: relative;
       overflow: hidden;
-      background: #121722;
+      background:
+        radial-gradient(circle at center, rgba(56, 189, 248, 0.12), transparent 34%),
+        linear-gradient(180deg, rgba(8, 16, 29, 0.85), rgba(3, 9, 18, 0.96)),
+        repeating-linear-gradient(0deg, transparent 0, transparent 34px, rgba(125, 211, 252, 0.06) 35px),
+        repeating-linear-gradient(90deg, transparent 0, transparent 46px, rgba(125, 211, 252, 0.05) 47px);
+      box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.06);
     }
 
-    .map-toggle button {
-      border: 0;
-      background: transparent;
-      color: var(--muted);
-      padding: 8px 14px;
-      font-weight: 700;
-      cursor: pointer;
+    .world-stage::before,
+    .world-stage::after {
+      content: "";
+      position: absolute;
+      inset: 12% 8%;
+      pointer-events: none;
+      opacity: 0.2;
+      border-radius: 50%;
+      filter: blur(0.3px);
     }
 
-    .map-toggle button.active {
-      background: #2f3a52;
-      color: #fff;
+    .world-stage::before {
+      background:
+        radial-gradient(circle at 18% 52%, rgba(186, 230, 253, 0.42) 0 10%, transparent 11%),
+        radial-gradient(circle at 34% 38%, rgba(186, 230, 253, 0.36) 0 9%, transparent 10%),
+        radial-gradient(circle at 53% 42%, rgba(186, 230, 253, 0.38) 0 8%, transparent 9%),
+        radial-gradient(circle at 67% 50%, rgba(186, 230, 253, 0.34) 0 13%, transparent 14%),
+        radial-gradient(circle at 82% 62%, rgba(186, 230, 253, 0.3) 0 8%, transparent 9%);
+      transform: scale(1.1, 0.8);
     }
 
-    .map-state {
-      margin-top: 10px;
+    .world-stage::after {
+      inset: auto 24px 20px 24px;
+      height: 92px;
+      background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.82));
+      border-radius: 0;
+    }
+
+    .map-title {
+      position: absolute;
+      top: 18px;
+      left: 20px;
+      z-index: 2;
+    }
+
+    .map-title strong {
+      display: block;
+      font-size: 22px;
+      letter-spacing: -0.03em;
+    }
+
+    .map-title span {
       color: var(--muted);
       font-size: 12px;
     }
 
-    .insight {
-      border: 1px solid var(--line);
-      background: #121722;
-      border-radius: 12px;
-      padding: 12px;
-      line-height: 1.45;
-      font-size: 13px;
-      color: #dbe4ff;
-    }
-
-    .risk-grid {
+    .map-hud {
+      position: absolute;
+      top: 18px;
+      right: 18px;
       display: grid;
       gap: 8px;
+      z-index: 2;
+      width: min(240px, calc(100% - 40px));
     }
 
-    .risk-item {
-      display: grid;
-      grid-template-columns: 1fr auto;
-      gap: 10px;
-      align-items: center;
-      border: 1px solid var(--line);
-      background: #141a25;
-      border-radius: 12px;
-      padding: 10px;
+    .hud-card {
+      border: 1px solid rgba(96, 165, 250, 0.16);
+      background: rgba(10, 20, 36, 0.85);
+      border-radius: 16px;
+      padding: 10px 12px;
     }
 
-    .risk-title { font-weight: 700; font-size: 14px; }
-    .risk-sub { color: var(--muted); font-size: 12px; }
-
-    .severity {
-      font-size: 11px;
+    .hud-label {
+      color: #7dd3fc;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.08em;
       font-weight: 800;
-      border-radius: 999px;
-      padding: 5px 9px;
-      letter-spacing: .3px;
     }
 
-    .severity.critical { background: rgba(239,68,68,.14); color: #fca5a5; border: 1px solid rgba(239,68,68,.35); }
-    .severity.elevated { background: rgba(249,115,22,.14); color: #fdba74; border: 1px solid rgba(249,115,22,.35); }
-    .severity.watch { background: rgba(250,204,21,.14); color: #fde68a; border: 1px solid rgba(250,204,21,.35); }
+    .hud-main {
+      margin-top: 4px;
+      font-size: 14px;
+      font-weight: 700;
+    }
 
-    .score-grid {
+    .hud-sub {
+      margin-top: 4px;
+      color: var(--muted);
+      font-size: 11px;
+      line-height: 1.45;
+    }
+
+    .hotspot-layer {
+      position: absolute;
+      inset: 0;
+    }
+
+    .hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
       display: grid;
-      gap: 8px;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      place-items: center;
+      gap: 6px;
+      cursor: pointer;
     }
 
-    .score-card {
-      border: 1px solid var(--line);
-      background: #141a25;
-      border-radius: 12px;
-      padding: 10px;
+    .hotspot-ring {
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      border: 2px solid currentColor;
+      background: rgba(255, 255, 255, 0.06);
+      box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.03);
+      animation: ping 2.8s infinite;
     }
 
-    .score-top {
+    .hotspot.critical { color: #f87171; }
+    .hotspot.elevated { color: #fb923c; }
+    .hotspot.watch { color: #facc15; }
+
+    .hotspot-label {
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(7, 13, 24, 0.82);
+      color: #fff;
+      padding: 6px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    @keyframes ping {
+      0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.18); }
+      70% { box-shadow: 0 0 0 18px rgba(255, 255, 255, 0); }
+      100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
+    }
+
+    .focus-strip {
+      position: absolute;
+      left: 20px;
+      right: 20px;
+      bottom: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 10px;
+      z-index: 2;
+    }
+
+    .focus-card {
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 16px;
+      background: rgba(8, 15, 28, 0.88);
+      padding: 12px;
+    }
+
+    .focus-top {
       display: flex;
       justify-content: space-between;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .focus-card strong {
+      font-size: 14px;
+    }
+
+    .focus-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .metric-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .metric-card {
+      border: 1px solid rgba(148, 163, 184, 0.16);
+      border-radius: 18px;
+      padding: 14px;
+      background: linear-gradient(180deg, rgba(13, 25, 42, 0.95), rgba(8, 16, 28, 0.95));
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      font-weight: 800;
+    }
+
+    .metric-value {
+      margin-top: 8px;
+      font-size: 30px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+    }
+
+    .metric-foot {
+      margin-top: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .trend-up { color: #fca5a5; }
+    .trend-down { color: #86efac; }
+    .trend-flat { color: #bfdbfe; }
+
+    .list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .list-row {
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(9, 18, 32, 0.82);
+    }
+
+    .list-row-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
       align-items: center;
       margin-bottom: 6px;
     }
 
-    .score-num { font-size: 24px; font-weight: 800; }
+    .list-row strong {
+      font-size: 14px;
+    }
 
-    .trend.up { color: #f87171; }
-    .trend.down { color: #4ade80; }
+    .list-row p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.5;
+    }
 
-    .metrics {
+    .severity {
+      padding: 6px 10px;
+      font-size: 10px;
+      border: 1px solid transparent;
+    }
+
+    .severity.critical {
+      color: #fecaca;
+      background: rgba(239, 68, 68, 0.16);
+      border-color: rgba(239, 68, 68, 0.32);
+    }
+
+    .severity.elevated {
+      color: #fdba74;
+      background: rgba(249, 115, 22, 0.14);
+      border-color: rgba(249, 115, 22, 0.32);
+    }
+
+    .severity.watch {
+      color: #fde68a;
+      background: rgba(250, 204, 21, 0.14);
+      border-color: rgba(250, 204, 21, 0.32);
+    }
+
+    .kpi-grid {
       display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 4px;
-      margin-top: 8px;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .lower-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .feed-grid {
+      display: grid;
+      gap: 16px;
+    }
+
+    .alert-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .alert-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 12px;
+      align-items: center;
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(8, 15, 28, 0.82);
+    }
+
+    .alert-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: var(--accent-2);
+      box-shadow: 0 0 12px rgba(56, 189, 248, 0.7);
+    }
+
+    .alert-meta {
       color: var(--muted);
       font-size: 11px;
+      margin-top: 4px;
     }
 
     .channels-bar {
       display: flex;
       flex-wrap: wrap;
-      gap: 8px;
-      padding: 12px;
-      border-bottom: 1px solid var(--line);
-      justify-content: center;
-      background: #141925;
+      gap: 10px;
+      margin-bottom: 14px;
     }
 
     .channel-btn {
-      border: 1px solid #30384d;
-      background: #232b3d;
-      color: #bac4d8;
-      border-radius: 10px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(17, 26, 42, 0.92);
+      color: #d7e6ff;
       padding: 10px 14px;
-      font-weight: 800;
-      font-size: 12px;
+      font-size: 11px;
       cursor: pointer;
-      min-width: 120px;
     }
 
     .channel-btn.active {
-      background: #ef4444;
-      border-color: #ef4444;
-      color: #fff;
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.92), rgba(249, 115, 22, 0.92));
+      border-color: rgba(254, 202, 202, 0.4);
     }
 
-    .video-container {
-      width: 100%;
-      aspect-ratio: 16/9;
+    .player-shell {
+      position: relative;
+      border-radius: 20px;
+      overflow: hidden;
+      border: 1px solid rgba(148, 163, 184, 0.18);
       background: #000;
+      aspect-ratio: 16 / 9;
     }
 
     iframe {
@@ -302,153 +703,463 @@
       border: 0;
     }
 
+    .source-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .source-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      padding: 11px 0;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      font-size: 13px;
+    }
+
+    .source-row:last-child { border-bottom: 0; }
+
+    .source-score {
+      color: #93c5fd;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .intel-summary {
+      display: grid;
+      gap: 12px;
+    }
+
+    .summary-card {
+      border: 1px solid rgba(148, 163, 184, 0.14);
+      border-radius: 16px;
+      padding: 14px;
+      background: rgba(8, 15, 28, 0.78);
+      line-height: 1.6;
+      font-size: 13px;
+      color: #dce8ff;
+    }
+
+    .summary-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
     .bottom-nav {
       position: fixed;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      border-top: 1px solid var(--line);
-      background: rgba(15, 17, 22, .97);
-      backdrop-filter: blur(8px);
+      left: 50%;
+      transform: translateX(-50%);
+      bottom: 14px;
+      width: min(720px, calc(100% - 24px));
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      background: rgba(5, 12, 22, 0.88);
+      backdrop-filter: blur(16px);
+      border-radius: 22px;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
-      padding: 8px 6px;
-      gap: 4px;
+      gap: 6px;
+      padding: 8px;
       z-index: 50;
+      box-shadow: 0 18px 34px rgba(0, 0, 0, 0.35);
     }
 
     .bottom-nav button {
       border: 0;
       background: transparent;
       color: var(--muted);
+      padding: 10px 8px;
+      border-radius: 14px;
       font-size: 11px;
       font-weight: 700;
-      padding: 8px 4px;
-      border-radius: 8px;
       cursor: pointer;
     }
 
     .bottom-nav button.active {
+      background: rgba(37, 99, 235, 0.18);
       color: #fff;
-      background: #1f2738;
+    }
+
+    @media (max-width: 1220px) {
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .lower-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .kpi-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 840px) {
+      body { padding: 12px 12px 92px; }
+      .command-tabs,
+      .metric-grid,
+      .focus-strip,
+      .kpi-grid {
+        grid-template-columns: 1fr;
+      }
+      .command-row { grid-template-columns: 1fr; }
+      .world-stage { min-height: 620px; }
+      .map-hud {
+        position: static;
+        width: 100%;
+        padding: 18px 18px 0;
+      }
+      .map-title {
+        position: static;
+        padding: 20px 20px 0;
+      }
+      .hotspot-layer { top: 84px; }
     }
 
     @media (max-width: 560px) {
-      body { padding: 10px 10px 88px; }
-      .channel-btn { min-width: 104px; }
-      .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .topbar,
+      .ticker,
+      .panel-body,
+      .panel-head { padding-left: 14px; padding-right: 14px; }
+      .bottom-nav { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .bottom-nav button { font-size: 10px; }
+      .alert-row { grid-template-columns: 1fr; }
+      .source-row { align-items: flex-start; flex-direction: column; }
     }
   </style>
 </head>
 <body>
-  <div class="app">
-    <h1 class="title">World Monitor</h1>
-    <p class="subtitle">Panel de monitoreo geopolítico y económico en tiempo real</p>
-
-    <section class="card" id="commandSection">
-      <div class="tabs" id="topicTabs">
-        <button class="tab active" data-topic="all">Todos</button>
-        <button class="tab" data-topic="pro">PRO</button>
-        <button class="tab" data-topic="principal">Principal</button>
-        <button class="tab" data-topic="intel">Inteligencia</button>
-      </div>
-      <div class="body-pad">
-        <div class="command-row">
-          <input id="commandInput" class="command-input" placeholder="Buscar o escribir un comando..." />
-          <button class="btn" id="runCommandBtn">Ejecutar</button>
+  <div class="shell">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-mark"></div>
+        <div>
+          <h1>World Monitor</h1>
+          <p>Panel de control de inteligencia global en tiempo real con foco geopolítico, mercado y alertas.</p>
         </div>
-        <div class="command-feedback" id="commandFeedback">Comandos: "volar a [país]", "abrir alertas", "abrir insights", "abrir vivo".</div>
-        <div style="margin-top: 12px;">
-          <div class="map-toggle">
-            <button class="active" data-mode="2D">2D</button>
-            <button data-mode="3D">3D</button>
+      </div>
+      <div class="top-actions">
+        <div class="pill"><span class="pulse"></span>Sistemas en línea · 247 fuentes activas</div>
+        <button class="ghost-btn" data-scroll-target="commandCenter">Centro de mando</button>
+        <button class="solid-btn" data-scroll-target="liveSection">Ver señal en vivo</button>
+      </div>
+    </header>
+
+    <section class="ticker" aria-label="Titulares en tiempo real">
+      <div class="ticker-track" id="tickerTrack"></div>
+    </section>
+
+    <section class="hero-grid">
+      <div class="stack">
+        <section class="panel" id="overviewSection">
+          <div class="panel-head">
+            <h2>Atajos operativos</h2>
+            <span class="mini-badge">LIVE</span>
           </div>
-          <div class="map-state" id="mapState">Visualización activa: Mapa geopolítico 2D.</div>
+          <div class="panel-body">
+            <div class="quick-nav">
+              <button class="nav-btn" data-target="mapSection">Mapa de amenazas <span>Saltos rápidos a focos y corredores críticos.</span></button>
+              <button class="nav-btn" data-target="alertsSection">Alertas prioritarias <span>Clasificación por severidad y ventana de impacto.</span></button>
+              <button class="nav-btn" data-target="insightSection">Brief de IA <span>Síntesis ejecutiva con convergencia de señales.</span></button>
+              <button class="nav-btn" data-target="liveSection">Canales en vivo <span>Feeds internacionales para validación visual.</span></button>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel" id="watchlistSection">
+          <div class="panel-head">
+            <h2>Watchlist global</h2>
+            <span class="mini-badge" id="watchCount">0 zonas</span>
+          </div>
+          <div class="panel-body">
+            <div class="list" id="watchList"></div>
+          </div>
+        </section>
+      </div>
+
+      <section class="panel" id="mapSection">
+        <div class="panel-head">
+          <h2>Teatro global</h2>
+          <span class="mini-badge" id="mapStatusBadge">Vista 2D</span>
         </div>
+        <div class="panel-body">
+          <div class="map-toolbar">
+            <div class="map-toggle">
+              <button class="map-btn active" data-mode="2D">Mapa 2D</button>
+              <button class="map-btn" data-mode="3D">Globo 3D</button>
+            </div>
+            <div class="pill" id="mapState">Cobertura activa: conflictos, rutas energéticas y presión diplomática.</div>
+          </div>
+
+          <div class="world-stage">
+            <div class="map-title">
+              <strong id="mapFocusTitle">Foco global · Ucrania</strong>
+              <span id="mapFocusSubtitle">Presión militar sostenida y seguimiento energético en Europa del Este.</span>
+            </div>
+
+            <div class="map-hud">
+              <div class="hud-card">
+                <div class="hud-label">Convergencia</div>
+                <div class="hud-main" id="hudConvergence">5 señales sincronizadas</div>
+                <div class="hud-sub" id="hudConvergenceDetail">Noticias, inteligencia, energía, marítimo y diplomacia.</div>
+              </div>
+              <div class="hud-card">
+                <div class="hud-label">Próxima ventana</div>
+                <div class="hud-main" id="hudWindow">12 h · 18 h UTC</div>
+                <div class="hud-sub" id="hudWindowDetail">Revisión esperada de sanciones, suministro y postura aliada.</div>
+              </div>
+            </div>
+
+            <div class="hotspot-layer" id="hotspotLayer"></div>
+            <div class="focus-strip" id="focusStrip"></div>
+          </div>
+        </div>
+      </section>
+
+      <div class="stack">
+        <section class="panel" id="kpiSection">
+          <div class="panel-head">
+            <h2>KPIs de situación</h2>
+            <span class="mini-badge">1h</span>
+          </div>
+          <div class="panel-body">
+            <div class="metric-grid" id="metricGrid"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="feedSection">
+          <div class="panel-head">
+            <h2>Fuentes prioritarias</h2>
+            <span class="mini-badge">Curadas</span>
+          </div>
+          <div class="panel-body">
+            <div class="source-list" id="sourceList"></div>
+          </div>
+        </section>
       </div>
     </section>
 
-    <section class="card" id="insightsSection">
-      <div class="card-head">
-        <h2>Insights de IA / Resumen Mundial</h2>
-        <span class="tag">Auto</span>
-      </div>
-      <div class="body-pad">
-        <div class="insight" id="insightText"></div>
-      </div>
-    </section>
+    <section class="kpi-grid" id="alertsSection"></section>
 
-    <section class="card" id="riskSection">
-      <div class="card-head">
-        <h2>Puntos Focales de Riesgo</h2>
-        <span class="tag" id="riskCount">0 focos</span>
-      </div>
-      <div class="body-pad">
-        <div class="risk-grid" id="riskGrid"></div>
-      </div>
-    </section>
+    <section class="lower-grid">
+      <div class="feed-grid">
+        <section class="panel" id="commandCenter">
+          <div class="panel-head">
+            <h2>Centro de mando</h2>
+            <span class="mini-badge">Cmd</span>
+          </div>
+          <div class="panel-body">
+            <div class="command-tabs" id="topicTabs">
+              <button class="tab active" data-topic="all">Todos</button>
+              <button class="tab" data-topic="pro">PRO</button>
+              <button class="tab" data-topic="principal">Principal</button>
+              <button class="tab" data-topic="intel">Intel</button>
+            </div>
+            <div class="command-row">
+              <input id="commandInput" class="command-input" placeholder="Buscar foco, región o comando..." />
+              <button class="run-btn" id="runCommandBtn">Ejecutar</button>
+            </div>
+            <div class="command-feedback" id="commandFeedback">Prueba: “volar a Ucrania”, “abrir mapa”, “abrir live”, “filtrar intel”.</div>
+          </div>
+        </section>
 
-    <section class="card" id="alertsSection">
-      <div class="card-head">
-        <h2>Alertas e Índice de Inestabilidad</h2>
-        <span class="tag">U · C · S · I</span>
-      </div>
-      <div class="body-pad">
-        <div class="score-grid" id="scoreGrid"></div>
-      </div>
-    </section>
+        <section class="panel" id="riskSection">
+          <div class="panel-head">
+            <h2>Áreas de riesgo</h2>
+            <span class="mini-badge" id="riskCount">0 focos</span>
+          </div>
+          <div class="panel-body">
+            <div class="list" id="riskGrid"></div>
+          </div>
+        </section>
 
-    <section class="card" id="liveSection">
-      <div class="card-head">
-        <h2><span class="dot"></span>Noticias en Vivo</h2>
-        <span class="tag">93</span>
+        <section class="panel" id="liveSection">
+          <div class="panel-head">
+            <h2>Canales en vivo</h2>
+            <span class="mini-badge" id="liveChannelLabel">Bloomberg</span>
+          </div>
+          <div class="panel-body">
+            <div class="channels-bar" id="channelsBar"></div>
+            <div class="player-shell">
+              <iframe id="newsPlayer" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+            </div>
+          </div>
+        </section>
       </div>
-      <div class="channels-bar" id="channelsBar"></div>
-      <div class="video-container">
-        <iframe id="newsPlayer" src="https://www.youtube.com/embed/live_stream?channel=UCIALMKvObZNtJ6AmdCLP7Lg&autoplay=1&rel=0&modestbranding=1" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+
+      <div class="feed-grid">
+        <section class="panel" id="insightSection">
+          <div class="panel-head">
+            <h2>Brief de IA</h2>
+            <span class="mini-badge">AUTO</span>
+          </div>
+          <div class="panel-body">
+            <div class="intel-summary">
+              <div class="summary-card" id="insightText"></div>
+              <div class="summary-footer">
+                <span id="briefWindow">Ventana analizada: próximas 24 horas.</span>
+                <span id="briefSources">Cruce: prensa, señales de conflicto, supply chain y mercados.</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <h2>Alertas críticas</h2>
+            <span class="mini-badge" id="alertCount">0 abiertas</span>
+          </div>
+          <div class="panel-body">
+            <div class="alert-grid" id="alertGrid"></div>
+          </div>
+        </section>
       </div>
     </section>
   </div>
 
   <nav class="bottom-nav" id="bottomNav">
-    <button class="active" data-target="insightsSection">Today</button>
-    <button data-target="riskSection">Map</button>
-    <button data-target="commandSection">Search</button>
-    <button data-target="alertsSection">Alerts</button>
-    <button data-target="liveSection">More</button>
+    <button class="active" data-target="overviewSection">Today</button>
+    <button data-target="mapSection">Map</button>
+    <button data-target="commandCenter">Search</button>
+    <button data-target="insightSection">Brief</button>
+    <button data-target="liveSection">Live</button>
   </nav>
 
   <script>
     const channels = [
-      { name: 'BLOOMBERG', id: 'UCIALMKvObZNtJ6AmdCLP7Lg' },
-      { name: 'SKY NEWS', id: 'UCoMdktPbSTixAyNGwb-UYkQ' },
-      { name: 'EURONEWS', id: 'UCSrZ3UV4jOidv8ppoVuvW9Q' },
-      { name: 'DW', id: 'UCknLrEdhRCp1aegoMqRaCZg' },
-      { name: 'CNBC', id: 'UCrp_UI8XtuYfpiqluWLD7Lw' },
-      { name: 'CNN', id: 'UCupvZG-5ko_eiXAupbDfxWw' },
-      { name: 'FRANCE 24', id: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },
-      { name: 'AL ARABIYA', id: 'UCfjzQf4sAuknzh4N6R6M-5g' },
-      { name: 'AL JAZEERA', id: 'UCNye-wNBqNL5ZzHSJj3l8Bg' }
+      { name: 'BLOOMBERG', label: 'Bloomberg', id: 'UCIALMKvObZNtJ6AmdCLP7Lg' },
+      { name: 'SKY NEWS', label: 'Sky News', id: 'UCoMdktPbSTixAyNGwb-UYkQ' },
+      { name: 'EURONEWS', label: 'Euronews', id: 'UCSrZ3UV4jOidv8ppoVuvW9Q' },
+      { name: 'DW', label: 'DW', id: 'UCknLrEdhRCp1aegoMqRaCZg' },
+      { name: 'CNBC', label: 'CNBC', id: 'UCrp_UI8XtuYfpiqluWLD7Lw' },
+      { name: 'CNN', label: 'CNN', id: 'UCupvZG-5ko_eiXAupbDfxWw' },
+      { name: 'FRANCE 24', label: 'France 24', id: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },
+      { name: 'AL ARABIYA', label: 'Al Arabiya', id: 'UCfjzQf4sAuknzh4N6R6M-5g' },
+      { name: 'AL JAZEERA', label: 'Al Jazeera', id: 'UCNye-wNBqNL5ZzHSJj3l8Bg' }
     ];
 
-    const riskData = [
-      { country: 'Taiwán', level: 'CRITICAL', severityClass: 'critical', news: 182, intel: 49 },
-      { country: 'Ucrania', level: 'CRITICAL', severityClass: 'critical', news: 214, intel: 61 },
-      { country: 'Irán', level: 'ELEVATED', severityClass: 'elevated', news: 127, intel: 36 },
-      { country: 'Mar Rojo', level: 'ELEVATED', severityClass: 'elevated', news: 95, intel: 27 },
-      { country: 'Sahel', level: 'WATCH', severityClass: 'watch', news: 51, intel: 19 }
+    const watchlistData = [
+      {
+        country: 'Ucrania',
+        level: 'CRITICAL',
+        severityClass: 'critical',
+        news: 214,
+        intel: 61,
+        coords: { x: 56, y: 34 },
+        note: 'Artillería, corredores logísticos y presión aliada.',
+        focus: 'Europa del Este',
+        convergence: '5 señales sincronizadas',
+        convergenceDetail: 'Noticias, inteligencia, energía, marítimo y diplomacia.',
+        window: '12 h · 18 h UTC',
+        windowDetail: 'Revisión esperada de sanciones, suministro y postura aliada.',
+        mapText: 'Presión militar sostenida y seguimiento energético en Europa del Este.'
+      },
+      {
+        country: 'Taiwán',
+        level: 'CRITICAL',
+        severityClass: 'critical',
+        news: 182,
+        intel: 49,
+        coords: { x: 79, y: 42 },
+        note: 'Movimientos navales, semiconductores y ejercicios regionales.',
+        focus: 'Indo-Pacífico',
+        convergence: '4 señales sincronizadas',
+        convergenceDetail: 'Noticias, naval, supply chain y señales de mercado.',
+        window: '9 h · 03 h UTC',
+        windowDetail: 'Monitoreo de estrecho, exportaciones y respuesta regional.',
+        mapText: 'Escalada de mensajes cruzados y control marítimo en el estrecho.'
+      },
+      {
+        country: 'Irán',
+        level: 'ELEVATED',
+        severityClass: 'elevated',
+        news: 127,
+        intel: 36,
+        coords: { x: 62, y: 47 },
+        note: 'Actividad regional, postura misilística y riesgo de represalia.',
+        focus: 'Golfo Pérsico',
+        convergence: '3 señales sincronizadas',
+        convergenceDetail: 'Diplomacia, energía y defensa aérea.',
+        window: '18 h · 22 h UTC',
+        windowDetail: 'Se vigila impacto sobre Hormuz y precios energéticos.',
+        mapText: 'Alta sensibilidad en el Golfo y elevación del riesgo energético.'
+      },
+      {
+        country: 'Mar Rojo',
+        level: 'ELEVATED',
+        severityClass: 'elevated',
+        news: 95,
+        intel: 27,
+        coords: { x: 57, y: 54 },
+        note: 'Riesgo sobre rutas marítimas y pólizas de seguros.',
+        focus: 'Chokepoints',
+        convergence: '3 señales sincronizadas',
+        convergenceDetail: 'Marítimo, comercio y primas logísticas.',
+        window: '6 h · 14 h UTC',
+        windowDetail: 'Posible desvío de tráfico y tensión sobre carga energética.',
+        mapText: 'Interrupciones potenciales en el corredor marítimo más sensible.'
+      },
+      {
+        country: 'Sahel',
+        level: 'WATCH',
+        severityClass: 'watch',
+        news: 51,
+        intel: 19,
+        coords: { x: 44, y: 49 },
+        note: 'Inestabilidad institucional y presión sobre cadenas mineras.',
+        focus: 'África Occidental',
+        convergence: '2 señales sincronizadas',
+        convergenceDetail: 'Seguridad interna y acceso a recursos.',
+        window: '24 h · revisión',
+        windowDetail: 'Observación sobre infraestructuras críticas y presencia externa.',
+        mapText: 'Riesgo persistente en gobernanza, logística y actividad insurgente.'
+      }
     ];
 
-    const scoreData = [
-      { country: 'Ucrania', score: 92, trend: 'up', trendText: '▲ +4', U: 0.92, C: 0.88, S: 0.95, I: 0.84 },
-      { country: 'Taiwán', score: 89, trend: 'up', trendText: '▲ +3', U: 0.87, C: 0.82, S: 0.91, I: 0.79 },
-      { country: 'Irán', score: 76, trend: 'down', trendText: '▼ -2', U: 0.71, C: 0.78, S: 0.8, I: 0.74 }
+    const metricsData = [
+      { label: 'Índice global de inestabilidad', value: '84', footA: 'Última hora', footB: '▲ +6', trend: 'up' },
+      { label: 'Señales correlacionadas', value: '19', footA: 'Cruce IA', footB: '▲ +3', trend: 'up' },
+      { label: 'Rutas estratégicas bajo presión', value: '07', footA: 'Marítimo y energía', footB: '→ estable', trend: 'flat' },
+      { label: 'Mercados sensibles', value: '11', footA: 'FX, crudo, semis', footB: '▼ -1', trend: 'down' }
+    ];
+
+    const alertCards = [
+      { label: 'UCR', value: '92', footA: 'Ucrania', footB: '▲ +4', trend: 'up' },
+      { label: 'TWN', value: '89', footA: 'Taiwán', footB: '▲ +3', trend: 'up' },
+      { label: 'IRN', value: '76', footA: 'Irán', footB: '▼ -2', trend: 'down' },
+      { label: 'RED', value: '74', footA: 'Mar Rojo', footB: '▲ +2', trend: 'up' }
+    ];
+
+    const sourcesData = [
+      { name: 'Bloomberg / mercados y energía', score: '92%' },
+      { name: 'Al Jazeera / crisis regionales', score: '89%' },
+      { name: 'DW / Europa y diplomacia', score: '86%' },
+      { name: 'Euronews / señales regulatorias', score: '81%' },
+      { name: 'France 24 / África y MENA', score: '80%' }
+    ];
+
+    const alertsFeed = [
+      { title: 'Incremento de presión sobre corredores energéticos en Europa del Este', time: 'Hace 12 min', source: 'IA + medios + energía', level: 'critical', eta: 'Impacto 6-12h' },
+      { title: 'Nueva convergencia de señales navales en el estrecho de Taiwán', time: 'Hace 18 min', source: 'Noticias + marítimo', level: 'critical', eta: 'Impacto 9h' },
+      { title: 'Repricing de seguros y fletes por tensión en Mar Rojo', time: 'Hace 28 min', source: 'Logística + comercio', level: 'elevated', eta: 'Impacto 6h' },
+      { title: 'Actividad política y energética eleva sensibilidad en Golfo Pérsico', time: 'Hace 35 min', source: 'Diplomacia + petróleo', level: 'elevated', eta: 'Impacto 18h' }
+    ];
+
+    const tickerItems = [
+      'Ucrania mantiene el mayor índice de convergencia operacional del tablero.',
+      'Taiwán registra subida de señales marítimas y presión de semiconductores.',
+      'Mar Rojo tensiona pólizas logísticas y tiempos de tránsito global.',
+      'Irán permanece en vigilancia reforzada por correlación energía-defensa.',
+      'Sahel sostiene riesgo estructural sobre minerales críticos y estabilidad.'
     ];
 
     const PRINCIPAL_COUNTRIES = new Set(['Ucrania', 'Taiwán']);
     const INTEL_THRESHOLD = 30;
     const FLY_PREFIX = 'volar a ';
-
     const topicFilters = {
       all: () => true,
       pro: item => item.level !== 'WATCH',
@@ -456,20 +1167,41 @@
       intel: item => item.intel >= INTEL_THRESHOLD
     };
 
+    const tickerTrack = document.getElementById('tickerTrack');
+    const watchList = document.getElementById('watchList');
+    const watchCount = document.getElementById('watchCount');
+    const hotspotLayer = document.getElementById('hotspotLayer');
+    const focusStrip = document.getElementById('focusStrip');
+    const metricGrid = document.getElementById('metricGrid');
+    const sourceList = document.getElementById('sourceList');
+    const alertsSection = document.getElementById('alertsSection');
     const topicTabs = document.getElementById('topicTabs');
     const riskGrid = document.getElementById('riskGrid');
     const riskCount = document.getElementById('riskCount');
-    const scoreGrid = document.getElementById('scoreGrid');
-    const insightText = document.getElementById('insightText');
     const channelsBar = document.getElementById('channelsBar');
     const player = document.getElementById('newsPlayer');
+    const liveChannelLabel = document.getElementById('liveChannelLabel');
+    const insightText = document.getElementById('insightText');
     const commandInput = document.getElementById('commandInput');
     const commandFeedback = document.getElementById('commandFeedback');
     const runCommandBtn = document.getElementById('runCommandBtn');
     const mapState = document.getElementById('mapState');
-    const navButtons = document.querySelectorAll('#bottomNav button');
+    const mapStatusBadge = document.getElementById('mapStatusBadge');
+    const mapFocusTitle = document.getElementById('mapFocusTitle');
+    const mapFocusSubtitle = document.getElementById('mapFocusSubtitle');
+    const hudConvergence = document.getElementById('hudConvergence');
+    const hudConvergenceDetail = document.getElementById('hudConvergenceDetail');
+    const hudWindow = document.getElementById('hudWindow');
+    const hudWindowDetail = document.getElementById('hudWindowDetail');
+    const briefWindow = document.getElementById('briefWindow');
+    const briefSources = document.getElementById('briefSources');
+    const alertGrid = document.getElementById('alertGrid');
+    const alertCount = document.getElementById('alertCount');
+    const bottomNavButtons = document.querySelectorAll('#bottomNav button');
 
     let activeTopic = 'all';
+    let activeMapMode = '2D';
+    let activeCountry = watchlistData[0].country;
 
     function slugify(text) {
       return text
@@ -492,6 +1224,137 @@
       return `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&rel=0&modestbranding=1`;
     }
 
+    function scrollToSection(sectionId) {
+      const target = document.getElementById(sectionId);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function setBottomNav(sectionId) {
+      bottomNavButtons.forEach(btn => btn.classList.toggle('active', btn.dataset.target === sectionId));
+    }
+
+    function renderTicker() {
+      const duplicated = [...tickerItems, ...tickerItems];
+      tickerTrack.innerHTML = duplicated
+        .map(item => `<div class="ticker-item"><span class="ticker-label">Live</span><span>${item}</span></div>`)
+        .join('');
+    }
+
+    function renderWatchlist() {
+      watchCount.textContent = `${watchlistData.length} zonas`;
+      watchList.innerHTML = '';
+
+      watchlistData.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'list-row';
+        row.innerHTML = `
+          <div class="list-row-top">
+            <strong>${item.country}</strong>
+            <span class="severity ${item.severityClass}">${item.level}</span>
+          </div>
+          <p>${item.focus} · ${item.note}</p>
+        `;
+        row.addEventListener('click', () => setFocus(item.country));
+        watchList.appendChild(row);
+      });
+    }
+
+    function renderHotspots() {
+      hotspotLayer.innerHTML = '';
+      watchlistData.forEach(item => {
+        const hotspot = document.createElement('button');
+        hotspot.type = 'button';
+        hotspot.className = `hotspot ${item.severityClass}`;
+        hotspot.style.left = `${item.coords.x}%`;
+        hotspot.style.top = `${item.coords.y}%`;
+        hotspot.setAttribute('aria-label', `Foco ${item.country}`);
+        hotspot.innerHTML = `<span class="hotspot-ring"></span><span class="hotspot-label">${item.country}</span>`;
+        hotspot.addEventListener('click', () => setFocus(item.country));
+        hotspotLayer.appendChild(hotspot);
+      });
+    }
+
+    function renderFocusStrip() {
+      focusStrip.innerHTML = '';
+      watchlistData.slice(0, 3).forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'focus-card';
+        card.innerHTML = `
+          <div class="focus-top">
+            <strong>${item.country}</strong>
+            <span class="severity ${item.severityClass}">${item.level}</span>
+          </div>
+          <p>${item.note}</p>
+        `;
+        card.addEventListener('click', () => setFocus(item.country));
+        focusStrip.appendChild(card);
+      });
+    }
+
+    function renderMetrics() {
+      metricGrid.innerHTML = '';
+      metricsData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'metric-card';
+        card.innerHTML = `
+          <div class="metric-label">${item.label}</div>
+          <div class="metric-value">${item.value}</div>
+          <div class="metric-foot">
+            <span>${item.footA}</span>
+            <span class="trend-${item.trend}">${item.footB}</span>
+          </div>
+        `;
+        metricGrid.appendChild(card);
+      });
+    }
+
+    function renderSources() {
+      sourceList.innerHTML = '';
+      sourcesData.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'source-row';
+        row.innerHTML = `<span>${item.name}</span><span class="source-score">${item.score}</span>`;
+        sourceList.appendChild(row);
+      });
+    }
+
+    function renderAlertCards() {
+      alertsSection.innerHTML = '';
+      alertCards.forEach(item => {
+        const card = document.createElement('section');
+        card.className = 'panel';
+        card.innerHTML = `
+          <div class="panel-body">
+            <div class="metric-label">${item.label}</div>
+            <div class="metric-value">${item.value}</div>
+            <div class="metric-foot">
+              <span>${item.footA}</span>
+              <span class="trend-${item.trend}">${item.footB}</span>
+            </div>
+          </div>
+        `;
+        alertsSection.appendChild(card);
+      });
+    }
+
+    function renderAlertFeed() {
+      alertCount.textContent = `${alertsFeed.length} abiertas`;
+      alertGrid.innerHTML = '';
+      alertsFeed.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'alert-row';
+        row.innerHTML = `
+          <span class="alert-dot"></span>
+          <div>
+            <strong>${item.title}</strong>
+            <div class="alert-meta">${item.time} · ${item.source}</div>
+          </div>
+          <span class="severity ${item.level}">${item.eta}</span>
+        `;
+        alertGrid.appendChild(row);
+      });
+    }
+
     function renderChannels() {
       channelsBar.innerHTML = '';
       channels.forEach((channel, index) => {
@@ -501,93 +1364,103 @@
         btn.addEventListener('click', () => {
           document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
+          liveChannelLabel.textContent = channel.label;
           player.src = embedUrl(channel.id);
         });
         channelsBar.appendChild(btn);
       });
+
+      const defaultChannel = channels[0];
+      liveChannelLabel.textContent = defaultChannel.label;
+      player.src = embedUrl(defaultChannel.id);
     }
 
-    function renderInsights(filtered) {
+    function renderInsight(filtered) {
       if (!filtered.length) {
-        insightText.textContent = 'Sin eventos en el filtro actual.';
+        insightText.textContent = 'Sin focos activos para el filtro actual.';
+        briefWindow.textContent = 'Ventana analizada: sin coincidencias.';
+        briefSources.textContent = 'Cruce disponible al restaurar el filtro.';
         return;
       }
-      const top = filtered.slice().sort((a, b) => (b.news + b.intel) - (a.news + a.intel))[0];
-      insightText.textContent = `Se detecta presión geopolítica concentrada en ${top.country}, con etiqueta ${top.level}. Las señales combinadas muestran aumento en declaraciones oficiales, fricción comercial y actividad militar regional. El modelo recomienda vigilancia reforzada sobre corredores energéticos, aranceles estratégicos y variaciones de postura diplomática de bloques aliados durante las próximas 24 horas.`;
+
+      const top = filtered
+        .slice()
+        .sort((a, b) => (b.news + b.intel) - (a.news + a.intel))[0];
+
+      insightText.textContent = `El tablero prioriza ${top.country} como punto de máxima fricción. La convergencia entre ${top.news} señales de prensa y ${top.intel} señales de inteligencia sugiere impacto potencial en ${top.focus.toLowerCase()}, con transmisión probable hacia energía, supply chain y posicionamiento diplomático. La recomendación operativa es reforzar vigilancia de movimientos militares, narrativa oficial y respuesta de aliados durante la próxima ventana táctica.`;
+      briefWindow.textContent = `Ventana analizada: ${top.window}.`;
+      briefSources.textContent = `Cruce: ${top.convergenceDetail}`;
     }
 
     function renderRisk() {
-      const filtered = riskData.filter(topicFilters[activeTopic]);
+      const filtered = watchlistData.filter(topicFilters[activeTopic]);
       riskGrid.innerHTML = '';
+
       filtered.forEach(item => {
         const row = document.createElement('div');
-        row.className = 'risk-item';
+        row.className = 'list-row';
         row.id = `risk-${slugify(item.country)}`;
-
-        const info = document.createElement('div');
-        const title = document.createElement('div');
-        title.className = 'risk-title';
-        title.textContent = item.country;
-
-        const sub = document.createElement('div');
-        sub.className = 'risk-sub';
-        sub.textContent = `${item.news} noticias · ${item.intel} señales intel`;
-
-        const severity = document.createElement('span');
-        severity.className = `severity ${item.severityClass}`;
-        severity.textContent = item.level;
-
-        info.appendChild(title);
-        info.appendChild(sub);
-        row.appendChild(info);
-        row.appendChild(severity);
+        row.innerHTML = `
+          <div class="list-row-top">
+            <strong>${item.country}</strong>
+            <span class="severity ${item.severityClass}">${item.level}</span>
+          </div>
+          <p>${item.news} noticias · ${item.intel} señales intel · ${item.note}</p>
+        `;
+        row.addEventListener('click', () => setFocus(item.country));
         riskGrid.appendChild(row);
       });
+
       riskCount.textContent = `${filtered.length} focos`;
-      renderInsights(filtered);
+      renderInsight(filtered);
     }
 
-    function renderScores() {
-      scoreGrid.innerHTML = '';
-      scoreData.forEach(item => {
-        const card = document.createElement('div');
-        card.className = 'score-card';
+    function setFocus(country) {
+      const item = watchlistData.find(entry => normalizeCommand(entry.country) === normalizeCommand(country));
+      if (!item) return;
 
-        const top = document.createElement('div');
-        top.className = 'score-top';
+      activeCountry = item.country;
+      mapFocusTitle.textContent = `Foco global · ${item.country}`;
+      mapFocusSubtitle.textContent = item.mapText;
+      hudConvergence.textContent = item.convergence;
+      hudConvergenceDetail.textContent = item.convergenceDetail;
+      hudWindow.textContent = item.window;
+      hudWindowDetail.textContent = item.windowDetail;
 
-        const country = document.createElement('strong');
-        country.textContent = item.country;
-
-        const trend = document.createElement('span');
-        trend.className = `trend ${item.trend}`;
-        trend.textContent = item.trendText;
-
-        const score = document.createElement('div');
-        score.className = 'score-num';
-        score.textContent = String(item.score);
-
-        const metrics = document.createElement('div');
-        metrics.className = 'metrics';
-        ['U', 'C', 'S', 'I'].forEach(key => {
-          const metric = document.createElement('span');
-          metric.textContent = `${key} ${item[key]}`;
-          metrics.appendChild(metric);
-        });
-
-        top.appendChild(country);
-        top.appendChild(trend);
-        card.appendChild(top);
-        card.appendChild(score);
-        card.appendChild(metrics);
-        scoreGrid.appendChild(card);
+      document.querySelectorAll('.hotspot-label').forEach(label => {
+        label.style.borderColor = 'rgba(148, 163, 184, 0.18)';
+        label.style.color = '#fff';
       });
+
+      const selected = Array.from(document.querySelectorAll('.hotspot')).find(node =>
+        normalizeCommand(node.textContent).includes(normalizeCommand(item.country))
+      );
+      if (selected) {
+        const label = selected.querySelector('.hotspot-label');
+        if (label) {
+          label.style.borderColor = 'rgba(96, 165, 250, 0.55)';
+          label.style.color = '#93c5fd';
+        }
+      }
     }
 
     function setActiveTopic(topic) {
       activeTopic = topic;
       document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.topic === topic));
       renderRisk();
+      const filtered = watchlistData.filter(topicFilters[activeTopic]);
+      if (filtered.length) {
+        setFocus(filtered[0].country);
+      }
+    }
+
+    function setMapMode(mode) {
+      activeMapMode = mode;
+      document.querySelectorAll('.map-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+      mapStatusBadge.textContent = `Vista ${mode}`;
+      mapState.textContent = mode === '3D'
+        ? 'Cobertura activa: globo 3D conceptual con corredores, teatros y nodos críticos.'
+        : 'Cobertura activa: conflictos, rutas energéticas y presión diplomática.';
     }
 
     function runCommand() {
@@ -598,74 +1471,101 @@
       }
 
       const cmd = normalizeCommand(raw);
+
       if (cmd.startsWith(FLY_PREFIX)) {
         const countryQuery = cmd.slice(FLY_PREFIX.length).trim();
-        const id = `risk-${slugify(countryQuery)}`;
-        const target = document.getElementById(id);
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          target.style.outline = '2px solid #60a5fa';
-          setTimeout(() => { target.style.outline = 'none'; }, 1200);
-          commandFeedback.textContent = `Comando ejecutado: vista enfocada en ${countryQuery}.`;
+        const match = watchlistData.find(item => normalizeCommand(item.country) === countryQuery);
+        if (match) {
+          setFocus(match.country);
+          scrollToSection('mapSection');
+          setBottomNav('mapSection');
+          commandFeedback.textContent = `Comando ejecutado: foco visual sobre ${match.country}.`;
         } else {
-          commandFeedback.textContent = `No se encontró "${countryQuery}" en los focos actuales.`;
+          commandFeedback.textContent = `No se encontró "${countryQuery}" en la watchlist actual.`;
         }
         return;
       }
 
-      const openTargets = {
+      const directTargets = {
+        [normalizeCommand('abrir mapa')]: 'mapSection',
         [normalizeCommand('abrir alertas')]: 'alertsSection',
-        [normalizeCommand('abrir insights')]: 'insightsSection',
-        [normalizeCommand('abrir vivo')]: 'liveSection'
+        [normalizeCommand('abrir brief')]: 'insightSection',
+        [normalizeCommand('abrir live')]: 'liveSection'
       };
 
-      if (openTargets[cmd]) {
-        document.getElementById(openTargets[cmd]).scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (directTargets[cmd]) {
+        scrollToSection(directTargets[cmd]);
+        setBottomNav(directTargets[cmd]);
         commandFeedback.textContent = `Comando ejecutado: ${cmd}.`;
         return;
       }
 
-      commandFeedback.textContent = 'Comando no reconocido. Prueba: "volar a Ucrania" o "abrir alertas".';
+      const topicCommands = {
+        [normalizeCommand('filtrar pro')]: 'pro',
+        [normalizeCommand('filtrar principal')]: 'principal',
+        [normalizeCommand('filtrar intel')]: 'intel',
+        [normalizeCommand('filtrar todos')]: 'all'
+      };
+
+      if (topicCommands[cmd]) {
+        setActiveTopic(topicCommands[cmd]);
+        commandFeedback.textContent = `Filtro activado: ${topicCommands[cmd].toUpperCase()}.`;
+        return;
+      }
+
+      const countryMatch = watchlistData.find(item => normalizeCommand(item.country) === cmd);
+      if (countryMatch) {
+        setFocus(countryMatch.country);
+        scrollToSection('mapSection');
+        setBottomNav('mapSection');
+        commandFeedback.textContent = `Vista centrada en ${countryMatch.country}.`;
+        return;
+      }
+
+      commandFeedback.textContent = 'Comando no reconocido. Usa “volar a Ucrania”, “abrir mapa” o “filtrar intel”.';
     }
 
-    topicTabs.addEventListener('click', (event) => {
+    topicTabs.addEventListener('click', event => {
       const button = event.target.closest('.tab');
       if (!button) return;
       setActiveTopic(button.dataset.topic);
     });
 
-    document.querySelectorAll('.map-toggle button').forEach(btn => {
-      btn.addEventListener('click', () => {
-        document.querySelectorAll('.map-toggle button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        mapState.textContent = btn.dataset.mode === '3D'
-          ? 'Visualización activa: Globo interactivo 3D.'
-          : 'Visualización activa: Mapa geopolítico 2D.';
-      });
+    document.querySelectorAll('.map-btn').forEach(btn => {
+      btn.addEventListener('click', () => setMapMode(btn.dataset.mode));
     });
 
-    runCommandBtn.addEventListener('click', runCommand);
-    commandInput.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter') runCommand();
-    });
-
-    navButtons.forEach(btn => {
+    document.querySelectorAll('[data-target]').forEach(btn => {
       btn.addEventListener('click', () => {
-        navButtons.forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        const target = document.getElementById(btn.dataset.target);
-        if (target) {
-          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-          if (btn.dataset.target === 'commandSection') {
-            commandInput.focus();
-          }
+        scrollToSection(btn.dataset.target);
+        if (btn.closest('#bottomNav')) {
+          setBottomNav(btn.dataset.target);
         }
       });
     });
 
+    document.querySelectorAll('[data-scroll-target]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        scrollToSection(btn.dataset.scrollTarget);
+      });
+    });
+
+    runCommandBtn.addEventListener('click', runCommand);
+    commandInput.addEventListener('keydown', event => {
+      if (event.key === 'Enter') runCommand();
+    });
+
+    renderTicker();
+    renderWatchlist();
+    renderHotspots();
+    renderFocusStrip();
+    renderMetrics();
+    renderSources();
+    renderAlertCards();
+    renderAlertFeed();
     renderChannels();
     renderRisk();
-    renderScores();
+    setFocus(activeCountry);
   </script>
 </body>
 </html>

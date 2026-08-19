@@ -26,6 +26,7 @@
 
     * { box-sizing: border-box; }
     html { scroll-behavior: smooth; }
+    .hidden { display: none !important; }
 
     body {
       margin: 0;
@@ -286,8 +287,8 @@
     .map-btn:hover,
     .ghost-btn:hover,
     .run-btn:hover {
-      background: rgba(37, 99, 235, 0.22);
-      border-color: rgba(96, 165, 250, 0.38);
+      background: rgba(0, 160, 80, 0.22);
+      border-color: rgba(0, 200, 100, 0.38);
       color: #fff;
     }
 
@@ -345,63 +346,267 @@
     }
 
     .world-stage {
-      min-height: 500px;
+      min-height: 520px;
       border-radius: 24px;
-      border: 1px solid rgba(148, 163, 184, 0.14);
+      border: 1px solid rgba(0, 180, 100, 0.22);
       position: relative;
       overflow: hidden;
-      background:
-        radial-gradient(circle at center, rgba(56, 189, 248, 0.12), transparent 34%),
-        linear-gradient(180deg, rgba(8, 16, 29, 0.85), rgba(3, 9, 18, 0.96)),
-        repeating-linear-gradient(0deg, transparent 0, transparent 34px, rgba(125, 211, 252, 0.06) 35px),
-        repeating-linear-gradient(90deg, transparent 0, transparent 46px, rgba(125, 211, 252, 0.05) 47px);
-      box-shadow: inset 0 0 0 1px rgba(14, 165, 233, 0.06);
+      background: #050e07;
+      box-shadow: inset 0 0 0 1px rgba(0, 200, 100, 0.06), 0 0 60px rgba(0, 120, 60, 0.12);
     }
 
-    .world-stage::before,
     .world-stage::after {
       content: "";
       position: absolute;
-      inset: 12% 8%;
-      pointer-events: none;
-      opacity: 0.2;
-      border-radius: 50%;
-      filter: blur(0.3px);
-    }
-
-    .world-stage::before {
-      background:
-        radial-gradient(circle at 18% 52%, rgba(186, 230, 253, 0.42) 0 10%, transparent 11%),
-        radial-gradient(circle at 34% 38%, rgba(186, 230, 253, 0.36) 0 9%, transparent 10%),
-        radial-gradient(circle at 53% 42%, rgba(186, 230, 253, 0.38) 0 8%, transparent 9%),
-        radial-gradient(circle at 67% 50%, rgba(186, 230, 253, 0.34) 0 13%, transparent 14%),
-        radial-gradient(circle at 82% 62%, rgba(186, 230, 253, 0.3) 0 8%, transparent 9%);
-      transform: scale(1.1, 0.8);
-    }
-
-    .world-stage::after {
       inset: auto 24px 20px 24px;
-      height: 92px;
-      background: linear-gradient(180deg, transparent, rgba(15, 23, 42, 0.82));
+      height: 80px;
+      background: linear-gradient(180deg, transparent, rgba(5, 14, 7, 0.9));
       border-radius: 0;
+      pointer-events: none;
+      z-index: 1;
+    }
+
+    /* Tactical map canvas */
+    #tacticalCanvas {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* Marker tooltip */
+    .map-tooltip {
+      position: absolute;
+      z-index: 10;
+      background: rgba(5, 18, 10, 0.95);
+      border: 1px solid rgba(0, 220, 120, 0.35);
+      border-radius: 14px;
+      padding: 10px 14px;
+      min-width: 180px;
+      max-width: 240px;
+      pointer-events: none;
+      transform: translate(-50%, calc(-100% - 12px));
+      box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+    }
+    .map-tooltip.hidden { display: none; }
+    .map-tooltip-title {
+      font-size: 13px;
+      font-weight: 800;
+      color: #7fffd4;
+      margin-bottom: 4px;
+    }
+    .map-tooltip-body {
+      font-size: 11px;
+      color: #a0c8b0;
+      line-height: 1.55;
+    }
+
+    /* Storm marker */
+    .marker-storm {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+    }
+    .storm-icon {
+      width: 36px;
+      height: 36px;
+      animation: stormSpin 3s linear infinite;
+      filter: drop-shadow(0 0 8px rgba(100, 180, 255, 0.7));
+    }
+    @keyframes stormSpin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .marker-storm-label {
+      color: #5bc8ff;
+      font-size: 10px;
+      font-weight: 700;
+      text-align: center;
+      white-space: nowrap;
+      text-shadow: 0 0 8px rgba(91, 200, 255, 0.7);
+    }
+    .marker-storm-kts {
+      color: #aee6ff;
+      font-size: 9px;
+      font-weight: 600;
+      margin-top: -2px;
+    }
+
+    /* Conflict zone marker */
+    .marker-conflict {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 5;
+    }
+    .conflict-ring {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+      border: 2px dashed rgba(220, 50, 50, 0.85);
+      background: rgba(180, 30, 30, 0.18);
+      box-shadow: 0 0 18px rgba(220, 50, 50, 0.35), inset 0 0 18px rgba(220, 50, 50, 0.1);
+      animation: conflictPulse 2.2s ease-in-out infinite;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .conflict-center {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      background: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.9);
+    }
+    @keyframes conflictPulse {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.08); opacity: 0.75; }
+    }
+
+    /* Hotspot dot (orange/red for crisis events) */
+    .marker-hotspot {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 5;
+    }
+    .hotspot-dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #f97316;
+      box-shadow: 0 0 12px rgba(249, 115, 22, 0.75);
+      animation: hotspotPulse 2.5s ease-in-out infinite;
+    }
+    .hotspot-dot.red { background: #ef4444; box-shadow: 0 0 12px rgba(239, 68, 68, 0.75); }
+    @keyframes hotspotPulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.4); }
+    }
+
+    /* Warning triangle */
+    .marker-warning {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 5;
+      font-size: 20px;
+      filter: drop-shadow(0 0 6px rgba(250, 200, 20, 0.7));
+      animation: warnBlink 2s ease-in-out infinite;
+      line-height: 1;
+    }
+    @keyframes warnBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    /* Iceberg marker */
+    .marker-iceberg {
+      position: absolute;
+      transform: translate(-50%, -50%);
+      cursor: pointer;
+      z-index: 5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+    }
+    .iceberg-icon {
+      width: 28px;
+      height: 28px;
+      filter: drop-shadow(0 0 6px rgba(140, 200, 255, 0.6));
+    }
+    .iceberg-label {
+      color: #7dd3fc;
+      font-size: 9px;
+      font-weight: 700;
+      white-space: nowrap;
+      text-shadow: 0 0 6px rgba(125, 211, 252, 0.6);
+    }
+    .iceberg-area {
+      color: #fbbf24;
+      font-size: 8px;
+      font-weight: 600;
+      margin-top: -1px;
+    }
+
+    /* Globe 3D placeholder */
+    .globe-placeholder {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: radial-gradient(circle at center, rgba(0, 80, 40, 0.4), #050e07 70%);
+    }
+    .globe-sphere {
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 35% 35%, rgba(0, 200, 120, 0.25), transparent 55%),
+        radial-gradient(circle at 65% 70%, rgba(0, 100, 60, 0.18), transparent 45%),
+        linear-gradient(135deg, #0a2a14, #071a0e);
+      border: 1px solid rgba(0, 180, 100, 0.3);
+      box-shadow:
+        0 0 60px rgba(0, 180, 100, 0.18),
+        inset 0 0 40px rgba(0, 60, 30, 0.5);
+      animation: globeRotate 20s linear infinite;
+      position: relative;
+      overflow: hidden;
+    }
+    .globe-sphere::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 50%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent 0,
+        transparent 29px,
+        rgba(0, 180, 100, 0.08) 30px
+      );
+    }
+    @keyframes globeRotate {
+      0% { box-shadow: 0 0 60px rgba(0, 180, 100, 0.18), inset 0 0 40px rgba(0, 60, 30, 0.5); }
+      50% { box-shadow: 0 0 80px rgba(0, 220, 120, 0.25), inset 0 0 50px rgba(0, 80, 40, 0.5); }
+      100% { box-shadow: 0 0 60px rgba(0, 180, 100, 0.18), inset 0 0 40px rgba(0, 60, 30, 0.5); }
+    }
+    .globe-label {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(100, 200, 150, 0.6);
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
     }
 
     .map-title {
       position: absolute;
       top: 18px;
       left: 20px;
-      z-index: 2;
+      z-index: 6;
     }
 
     .map-title strong {
       display: block;
-      font-size: 22px;
-      letter-spacing: -0.03em;
+      font-size: 18px;
+      letter-spacing: -0.02em;
+      color: #7fffd4;
+      text-shadow: 0 0 12px rgba(127, 255, 212, 0.4);
     }
 
     .map-title span {
-      color: var(--muted);
-      font-size: 12px;
+      color: rgba(100, 200, 150, 0.7);
+      font-size: 11px;
     }
 
     .map-hud {
@@ -410,19 +615,19 @@
       right: 18px;
       display: grid;
       gap: 8px;
-      z-index: 2;
-      width: min(240px, calc(100% - 40px));
+      z-index: 6;
+      width: min(220px, calc(100% - 40px));
     }
 
     .hud-card {
-      border: 1px solid rgba(96, 165, 250, 0.16);
-      background: rgba(10, 20, 36, 0.85);
-      border-radius: 16px;
+      border: 1px solid rgba(0, 180, 100, 0.2);
+      background: rgba(5, 18, 10, 0.88);
+      border-radius: 14px;
       padding: 10px 12px;
     }
 
     .hud-label {
-      color: #7dd3fc;
+      color: #34d399;
       text-transform: uppercase;
       font-size: 10px;
       letter-spacing: 0.08em;
@@ -431,13 +636,14 @@
 
     .hud-main {
       margin-top: 4px;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
+      color: #d1fae5;
     }
 
     .hud-sub {
       margin-top: 4px;
-      color: var(--muted);
+      color: rgba(100, 180, 130, 0.75);
       font-size: 11px;
       line-height: 1.45;
     }
@@ -445,8 +651,12 @@
     .hotspot-layer {
       position: absolute;
       inset: 0;
+      z-index: 5;
+      pointer-events: none;
     }
+    .hotspot-layer > * { pointer-events: auto; }
 
+    /* Legacy hotspot styles kept for backward compat */
     .hotspot {
       position: absolute;
       transform: translate(-50%, -50%);
@@ -454,15 +664,15 @@
       place-items: center;
       gap: 6px;
       cursor: pointer;
+      z-index: 5;
     }
 
     .hotspot-ring {
-      width: 18px;
-      height: 18px;
+      width: 16px;
+      height: 16px;
       border-radius: 50%;
       border: 2px solid currentColor;
       background: rgba(255, 255, 255, 0.06);
-      box-shadow: 0 0 0 10px rgba(255, 255, 255, 0.03);
       animation: ping 2.8s infinite;
     }
 
@@ -471,32 +681,30 @@
     .hotspot.watch { color: #facc15; }
 
     .hotspot-label {
-      border: 1px solid rgba(148, 163, 184, 0.18);
-      background: rgba(7, 13, 24, 0.82);
-      color: #fff;
-      padding: 6px 10px;
+      border: 1px solid rgba(0, 200, 100, 0.22);
+      background: rgba(5, 18, 10, 0.85);
+      color: #d1fae5;
+      padding: 4px 9px;
       border-radius: 999px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
       white-space: nowrap;
     }
 
     @keyframes ping {
       0% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.18); }
-      70% { box-shadow: 0 0 0 18px rgba(255, 255, 255, 0); }
+      70% { box-shadow: 0 0 0 14px rgba(255, 255, 255, 0); }
       100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
     }
 
-    /* World map SVG background */
-    .map-svg {
+    /* World map canvas background */
+    #tacticalCanvas {
       position: absolute;
       inset: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none;
-      opacity: 0.5;
+      display: block;
     }
-    .map-svg path { fill: #38bdf8; stroke: none; }
 
     /* Hotspot type icon inside label */
     .hotspot-icon {
@@ -507,12 +715,12 @@
     /* Map legend */
     .map-legend {
       position: absolute;
-      bottom: 130px;
+      bottom: 14px;
       left: 20px;
       display: flex;
       gap: 6px;
       flex-wrap: wrap;
-      z-index: 3;
+      z-index: 6;
       pointer-events: none;
     }
     .legend-item {
@@ -521,9 +729,9 @@
       gap: 4px;
       font-size: 10px;
       font-weight: 700;
-      color: var(--muted);
-      background: rgba(7, 13, 24, 0.82);
-      border: 1px solid rgba(148, 163, 184, 0.18);
+      color: rgba(100, 200, 140, 0.8);
+      background: rgba(5, 18, 10, 0.82);
+      border: 1px solid rgba(0, 180, 100, 0.18);
       border-radius: 999px;
       padding: 3px 9px;
       white-space: nowrap;
@@ -533,18 +741,18 @@
       position: absolute;
       left: 20px;
       right: 20px;
-      bottom: 18px;
+      bottom: 50px;
       display: grid;
       grid-template-columns: repeat(3, minmax(0, 1fr));
       gap: 10px;
-      z-index: 2;
+      z-index: 6;
     }
 
     .focus-card {
-      border: 1px solid rgba(148, 163, 184, 0.16);
-      border-radius: 16px;
-      background: rgba(8, 15, 28, 0.88);
-      padding: 12px;
+      border: 1px solid rgba(0, 180, 100, 0.18);
+      border-radius: 14px;
+      background: rgba(5, 18, 10, 0.88);
+      padding: 10px 12px;
     }
 
     .focus-top {
@@ -555,14 +763,15 @@
     }
 
     .focus-card strong {
-      font-size: 14px;
+      font-size: 13px;
+      color: #d1fae5;
     }
 
     .focus-card p {
-      margin: 8px 0 0;
-      color: var(--muted);
-      font-size: 12px;
-      line-height: 1.45;
+      margin: 6px 0 0;
+      color: rgba(100, 180, 130, 0.75);
+      font-size: 11px;
+      line-height: 1.4;
     }
 
     .metric-grid {
@@ -937,44 +1146,15 @@
             <div class="pill" id="mapState">Cobertura activa: conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.</div>
           </div>
 
-          <div class="world-stage">
-            <!-- SVG world map background -->
-            <svg class="map-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
-              <!-- North America -->
-              <path d="M33,67 L83,89 L156,117 L175,158 L194,186 L256,206 L278,181 L292,153 L325,125 L353,119 L356,100 L306,83 L311,56 L194,42 L153,44 L108,56 Z"/>
-              <!-- Greenland -->
-              <path d="M278,47 L311,28 L369,28 L378,64 L339,81 L292,72 Z"/>
-              <!-- South America -->
-              <path d="M305,217 L286,244 L278,253 L278,342 L311,403 L353,344 L392,313 L406,264 L361,244 L331,217 Z"/>
-              <!-- Europe -->
-              <path d="M475,142 L478,128 L506,119 L486,89 L539,53 L578,56 L583,83 L567,92 L556,100 L553,119 L569,125 L592,122 L575,142 L561,144 L544,144 L533,128 L519,128 L494,111 Z"/>
-              <!-- Iberian Peninsula -->
-              <path d="M475,128 L494,125 L499,142 L490,158 L472,155 L466,142 Z"/>
-              <!-- British Isles -->
-              <path d="M480,88 L492,83 L497,95 L489,108 L477,105 Z"/>
-              <!-- Iceland -->
-              <path d="M436,69 L450,64 L461,72 L455,86 L441,89 Z"/>
-              <!-- Africa -->
-              <path d="M483,153 L528,147 L536,158 L597,164 L619,217 L642,244 L611,281 L600,317 L589,347 L550,347 L547,311 L533,283 L533,261 L508,236 L492,233 L475,236 L464,222 L453,211 L453,192 L464,172 Z"/>
-              <!-- Madagascar -->
-              <path d="M597,286 L611,275 L619,294 L617,325 L608,336 L597,322 L592,306 Z"/>
-              <!-- Asia mainland -->
-              <path d="M575,142 L600,133 L625,131 L667,128 L722,111 L778,97 L861,83 L972,67 L903,119 L856,153 L833,189 L800,217 L786,244 L722,228 L700,189 L672,181 L661,189 L633,217 L628,186 L617,156 Z"/>
-              <!-- Indian subcontinent -->
-              <path d="M672,181 L700,189 L714,208 L722,228 L714,253 L700,261 L683,253 L672,231 L664,208 Z"/>
-              <!-- Indochina / SE Asia -->
-              <path d="M786,186 L808,186 L819,203 L808,225 L789,236 L775,222 L775,203 Z"/>
-              <!-- Japan -->
-              <path d="M881,119 L894,114 L900,131 L892,147 L878,142 Z"/>
-              <!-- Australia -->
-              <path d="M814,311 L864,283 L903,292 L928,319 L919,347 L903,356 L883,347 L819,342 Z"/>
-              <!-- New Zealand North Island -->
-              <path d="M975,348 L983,339 L989,356 L981,369 L972,361 Z"/>
-              <!-- New Zealand South Island -->
-              <path d="M969,375 L978,369 L981,386 L972,397 L963,389 Z"/>
-              <!-- Antarctica -->
-              <path d="M0,478 L300,464 L500,461 L700,464 L1000,478 L1000,500 L0,500 Z"/>
-            </svg>
+          <div class="world-stage" id="worldStage">
+            <!-- Tactical map canvas -->
+            <canvas id="tacticalCanvas"></canvas>
+
+            <!-- Globe 3D placeholder (hidden in 2D mode) -->
+            <div class="globe-placeholder hidden" id="globePlaceholder">
+              <div class="globe-sphere"></div>
+              <div class="globe-label">Vista 3D · Globo</div>
+            </div>
 
             <div class="map-title">
               <strong id="mapFocusTitle">Foco global · Ucrania</strong>
@@ -983,11 +1163,11 @@
 
             <!-- Threat-type legend -->
             <div class="map-legend">
-              <span class="legend-item"><span>⚔</span> Conflicto bélico</span>
-              <span class="legend-item"><span>🏛</span> Político</span>
-              <span class="legend-item"><span>🦠</span> Pandemia</span>
-              <span class="legend-item"><span>🌪</span> Catástrofe</span>
-              <span class="legend-item"><span>💸</span> Pobreza</span>
+              <span class="legend-item"><span>⚔</span> Conflicto</span>
+              <span class="legend-item"><span>🌀</span> Tormenta</span>
+              <span class="legend-item"><span>🧊</span> Iceberg</span>
+              <span class="legend-item"><span>⚠</span> Alerta</span>
+              <span class="legend-item"><span>🔴</span> Crisis</span>
             </div>
 
             <div class="map-hud">
@@ -1005,6 +1185,12 @@
 
             <div class="hotspot-layer" id="hotspotLayer"></div>
             <div class="focus-strip" id="focusStrip"></div>
+
+            <!-- Marker tooltip -->
+            <div class="map-tooltip hidden" id="mapTooltip">
+              <div class="map-tooltip-title" id="tooltipTitle"></div>
+              <div class="map-tooltip-body" id="tooltipBody"></div>
+            </div>
           </div>
         </div>
       </section>
@@ -1419,17 +1605,20 @@
     function renderHotspots() {
       hotspotLayer.innerHTML = '';
       watchlistData.forEach(item => {
-        const icon = THREAT_ICONS[item.type] || '';
-        const hotspot = document.createElement('button');
-        hotspot.type = 'button';
-        hotspot.className = `hotspot ${item.severityClass}`;
-        hotspot.dataset.country = item.country;
-        hotspot.style.left = `${item.coords.x}%`;
-        hotspot.style.top = `${item.coords.y}%`;
-        hotspot.setAttribute('aria-label', `Foco ${item.country}`);
-        hotspot.innerHTML = `<span class="hotspot-ring"></span><span class="hotspot-label"><span class="hotspot-icon">${icon}</span>${item.country}</span>`;
-        hotspot.addEventListener('click', () => setFocus(item.country));
-        hotspotLayer.appendChild(hotspot);
+        // Critical conflicts get the conflict-ring marker (rendered separately)
+        if (item.type === 'conflict' && item.severityClass === 'critical') return;
+
+        const el = document.createElement('div');
+        el.className = 'marker-hotspot';
+        el.style.left = item.coords.x + '%';
+        el.style.top  = item.coords.y + '%';
+        const dotClass = item.severityClass === 'critical' ? 'red' : '';
+        el.innerHTML = `<div class="hotspot-dot ${dotClass}"></div>`;
+        el.setAttribute('aria-label', `Foco ${item.country}`);
+        el.addEventListener('mouseenter', () => showTooltip(el, item.country, item.note));
+        el.addEventListener('mouseleave', hideTooltip);
+        el.addEventListener('click', () => { setFocus(item.country); hideTooltip(); });
+        hotspotLayer.appendChild(el);
       });
     }
 
@@ -1614,14 +1803,285 @@
       }
     }
 
+    // ── Tactical Map Data ──────────────────────────────────────────────────
+    const tropicalStorms = [
+      { name: 'Tropical Storm Cristobal', kts: 25, x: 18, y: 52,
+        info: 'Tormenta tropical · 25 nudos · Atlántico Central' },
+      { name: 'T.D. Beryl',               kts: 35, x: 12, y: 58,
+        info: 'Depresión tropical · 35 nudos · Caribe Occidental' },
+      { name: 'T.S. Debby',               kts: 45, x: 28, y: 62,
+        info: 'Tormenta tropical · 45 nudos · Golfo de México' }
+    ];
+
+    const icebergData = [
+      { name: 'Iceberg A76C', area: 112, x: 28, y: 90,
+        info: 'Iceberg A76C · 112 NM² · Mar de Weddell' },
+      { name: 'Iceberg D32',  area:  54, x: 34, y: 91,
+        info: 'Iceberg D32 · 54 NM² · Mar de Ross' },
+      { name: 'Iceberg D33B', area:  35, x: 30, y: 92,
+        info: 'Iceberg D33B · 35 NM² · Mar de Ross' },
+      { name: 'Iceberg D33D', area:  29, x: 33, y: 93,
+        info: 'Iceberg D33D · 29 NM² · Mar de Ross' },
+      { name: 'Iceberg C39',  area:  24, x: 84, y: 90,
+        info: 'Iceberg C39 · 24 NM² · Mar de Amundsen' }
+    ];
+
+    const warningMarkers = [
+      { name: 'Alerta OTAN · Flanco Este',   x: 10, y: 40,
+        info: 'Ejercicios OTAN · Flanco Este · Monitoreo activo' },
+      { name: 'Alerta · Estrecho de Taiwán', x: 87, y: 44,
+        info: 'Actividad naval · Estrecho de Taiwán · Alta tensión' }
+    ];
+
+    // Radar-style satellite / antenna SVG icons in Antarctica region
+    const antennaMarkers = [
+      { x: 44, y: 78 }, { x: 50, y: 79 }, { x: 60, y: 78 }
+    ];
+
+    // ── Tactical Canvas Rendering ───────────────────────────────────────────
+    const tacticalCanvas = document.getElementById('tacticalCanvas');
+    const worldStage = document.getElementById('worldStage');
+    const globePlaceholder = document.getElementById('globePlaceholder');
+
+    // Simplified continent polygons in normalized [0-1] space
+    // Format: array of [x,y] points (0-1 range), converted to canvas coords
+    const continents = [
+      // North America
+      [[0.033,0.134],[0.083,0.178],[0.156,0.234],[0.175,0.316],[0.194,0.372],[0.256,0.412],
+       [0.278,0.362],[0.292,0.306],[0.325,0.25],[0.353,0.238],[0.356,0.2],[0.306,0.166],
+       [0.311,0.112],[0.194,0.084],[0.153,0.088],[0.108,0.112]],
+      // Greenland
+      [[0.278,0.094],[0.311,0.056],[0.369,0.056],[0.378,0.128],[0.339,0.162],[0.292,0.144]],
+      // South America
+      [[0.305,0.434],[0.286,0.488],[0.278,0.506],[0.278,0.684],[0.311,0.806],[0.353,0.688],
+       [0.392,0.626],[0.406,0.528],[0.361,0.488],[0.331,0.434]],
+      // Europe
+      [[0.475,0.284],[0.478,0.256],[0.506,0.238],[0.486,0.178],[0.539,0.106],[0.578,0.112],
+       [0.583,0.166],[0.567,0.184],[0.556,0.2],[0.553,0.238],[0.569,0.25],[0.592,0.244],
+       [0.575,0.284],[0.561,0.288],[0.544,0.288],[0.533,0.256],[0.519,0.256],[0.494,0.222]],
+      // Iberian Peninsula
+      [[0.475,0.256],[0.494,0.25],[0.499,0.284],[0.49,0.316],[0.472,0.31],[0.466,0.284]],
+      // British Isles
+      [[0.48,0.176],[0.492,0.166],[0.497,0.19],[0.489,0.216],[0.477,0.21]],
+      // Iceland
+      [[0.436,0.138],[0.45,0.128],[0.461,0.144],[0.455,0.172],[0.441,0.178]],
+      // Africa
+      [[0.483,0.306],[0.528,0.294],[0.536,0.316],[0.597,0.328],[0.619,0.434],[0.642,0.488],
+       [0.611,0.562],[0.6,0.634],[0.589,0.694],[0.55,0.694],[0.547,0.622],[0.533,0.566],
+       [0.533,0.522],[0.508,0.472],[0.492,0.466],[0.475,0.472],[0.464,0.444],[0.453,0.422],
+       [0.453,0.384],[0.464,0.344]],
+      // Madagascar
+      [[0.597,0.572],[0.611,0.55],[0.619,0.588],[0.617,0.65],[0.608,0.672],[0.597,0.644],[0.592,0.612]],
+      // Asia
+      [[0.575,0.284],[0.6,0.266],[0.625,0.262],[0.667,0.256],[0.722,0.222],[0.778,0.194],
+       [0.861,0.166],[0.972,0.134],[0.903,0.238],[0.856,0.306],[0.833,0.378],[0.8,0.434],
+       [0.786,0.488],[0.722,0.456],[0.7,0.378],[0.672,0.362],[0.661,0.378],[0.633,0.434],
+       [0.628,0.372],[0.617,0.312]],
+      // Indian subcontinent
+      [[0.672,0.362],[0.7,0.378],[0.714,0.416],[0.722,0.456],[0.714,0.506],[0.7,0.522],
+       [0.683,0.506],[0.672,0.462],[0.664,0.416]],
+      // Indochina
+      [[0.786,0.372],[0.808,0.372],[0.819,0.406],[0.808,0.45],[0.789,0.472],[0.775,0.444],[0.775,0.406]],
+      // Japan
+      [[0.881,0.238],[0.894,0.228],[0.9,0.262],[0.892,0.294],[0.878,0.284]],
+      // Australia
+      [[0.814,0.622],[0.864,0.566],[0.903,0.584],[0.928,0.638],[0.919,0.694],[0.903,0.712],
+       [0.883,0.694],[0.819,0.684]],
+      // New Zealand
+      [[0.975,0.696],[0.983,0.678],[0.989,0.712],[0.981,0.738],[0.972,0.722]],
+      // Antarctica
+      [[0.0,0.956],[0.3,0.928],[0.5,0.922],[0.7,0.928],[1.0,0.956],[1.0,1.0],[0.0,1.0]]
+    ];
+
+    function drawTacticalMap() {
+      if (!tacticalCanvas) return;
+      const stage = worldStage;
+      const W = stage.offsetWidth;
+      const H = stage.offsetHeight;
+      if (W === 0 || H === 0) return;
+
+      tacticalCanvas.width = W;
+      tacticalCanvas.height = H;
+      const ctx = tacticalCanvas.getContext('2d');
+
+      // Background
+      ctx.fillStyle = '#050e07';
+      ctx.fillRect(0, 0, W, H);
+
+      // Grid lines
+      ctx.strokeStyle = 'rgba(0, 140, 70, 0.18)';
+      ctx.lineWidth = 0.5;
+      const gridCols = Math.ceil(W / 40);
+      const gridRows = Math.ceil(H / 40);
+      for (let i = 0; i <= gridCols; i++) {
+        const x = (i / gridCols) * W;
+        ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, H); ctx.stroke();
+      }
+      for (let j = 0; j <= gridRows; j++) {
+        const y = (j / gridRows) * H;
+        ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(W, y); ctx.stroke();
+      }
+
+      // Draw continents
+      continents.forEach(poly => {
+        ctx.beginPath();
+        poly.forEach(([nx, ny], i) => {
+          const px = nx * W;
+          const py = ny * H;
+          if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
+        });
+        ctx.closePath();
+        ctx.fillStyle = 'rgba(0, 100, 60, 0.55)';
+        ctx.fill();
+        ctx.strokeStyle = 'rgba(0, 200, 100, 0.28)';
+        ctx.lineWidth = 0.8;
+        ctx.stroke();
+      });
+
+      // Subtle radar glow at center
+      const radGrad = ctx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.45, Math.max(W, H) * 0.45);
+      radGrad.addColorStop(0, 'rgba(0, 180, 80, 0.06)');
+      radGrad.addColorStop(1, 'transparent');
+      ctx.fillStyle = radGrad;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    // ── Render new marker types ────────────────────────────────────────────
+    const mapTooltipEl = document.getElementById('mapTooltip');
+    const tooltipTitle = document.getElementById('tooltipTitle');
+    const tooltipBody  = document.getElementById('tooltipBody');
+
+    function showTooltip(el, title, body) {
+      tooltipTitle.textContent = title;
+      tooltipBody.textContent  = body;
+      mapTooltipEl.classList.remove('hidden');
+      const stage = worldStage.getBoundingClientRect();
+      const rect  = el.getBoundingClientRect();
+      const cx = rect.left + rect.width  / 2 - stage.left;
+      const cy = rect.top                    - stage.top;
+      mapTooltipEl.style.left = cx + 'px';
+      mapTooltipEl.style.top  = cy + 'px';
+    }
+    function hideTooltip() { mapTooltipEl.classList.add('hidden'); }
+
+    function stormSVG() {
+      return `<svg class="storm-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="18" cy="18" r="16" stroke="rgba(91,200,255,0.35)" stroke-width="1"/>
+        <path d="M18 2 C26 6 32 14 28 22 C24 30 14 32 8 26 C2 20 4 10 12 6 C8 12 10 20 18 20 C26 20 30 12 24 8 C20 5 16 6 18 2Z"
+              fill="rgba(91,200,255,0.85)" stroke="rgba(140,220,255,0.6)" stroke-width="0.5"/>
+        <circle cx="18" cy="18" r="3" fill="rgba(200,240,255,0.9)"/>
+      </svg>`;
+    }
+
+    function icebergSVG() {
+      return `<svg class="iceberg-icon" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7 20 L14 6 L21 20 Z" fill="rgba(180,230,255,0.85)" stroke="rgba(140,210,255,0.6)" stroke-width="0.8"/>
+        <path d="M7 20 L21 20 L21 24 L7 24 Z" fill="rgba(100,180,230,0.65)" stroke="rgba(120,200,255,0.5)" stroke-width="0.6"/>
+        <path d="M21 20 L25 16 L25 22 L21 24 Z" fill="rgba(140,200,245,0.6)" stroke="rgba(130,210,255,0.45)" stroke-width="0.5"/>
+        <path d="M7 20 L3 16 L3 22 L7 24 Z" fill="rgba(120,190,240,0.55)" stroke="rgba(120,210,255,0.4)" stroke-width="0.5"/>
+      </svg>`;
+    }
+
+    function renderTacticalMarkers() {
+      const layer = hotspotLayer;
+
+      // ── Tropical Storms ──
+      tropicalStorms.forEach(storm => {
+        const el = document.createElement('div');
+        el.className = 'marker-storm';
+        el.style.left = storm.x + '%';
+        el.style.top  = storm.y + '%';
+        el.innerHTML = `
+          ${stormSVG()}
+          <div class="marker-storm-label">${storm.name}</div>
+          <div class="marker-storm-kts">${storm.kts} kts</div>
+        `;
+        el.addEventListener('mouseenter', () => showTooltip(el, storm.name, storm.info));
+        el.addEventListener('mouseleave', hideTooltip);
+        el.addEventListener('click', () => showTooltip(el, storm.name, storm.info));
+        layer.appendChild(el);
+      });
+
+      // ── Icebergs ──
+      icebergData.forEach(iceberg => {
+        const el = document.createElement('div');
+        el.className = 'marker-iceberg';
+        el.style.left = iceberg.x + '%';
+        el.style.top  = iceberg.y + '%';
+        el.innerHTML = `
+          ${icebergSVG()}
+          <div class="iceberg-label">${iceberg.name}</div>
+          <div class="iceberg-area">${iceberg.area} NM²</div>
+        `;
+        el.addEventListener('mouseenter', () => showTooltip(el, iceberg.name, iceberg.info));
+        el.addEventListener('mouseleave', hideTooltip);
+        el.addEventListener('click', () => showTooltip(el, iceberg.name, iceberg.info));
+        layer.appendChild(el);
+      });
+
+      // ── Warning triangles ──
+      warningMarkers.forEach(warn => {
+        const el = document.createElement('div');
+        el.className = 'marker-warning';
+        el.style.left = warn.x + '%';
+        el.style.top  = warn.y + '%';
+        el.textContent = '⚠';
+        el.title = warn.name;
+        el.addEventListener('mouseenter', () => showTooltip(el, warn.name, warn.info));
+        el.addEventListener('mouseleave', hideTooltip);
+        el.addEventListener('click', () => showTooltip(el, warn.name, warn.info));
+        layer.appendChild(el);
+      });
+    }
+
+    function renderConflictZones() {
+      const layer = hotspotLayer;
+      watchlistData
+        .filter(item => item.type === 'conflict' && item.severityClass === 'critical')
+        .forEach(item => {
+          const el = document.createElement('div');
+          el.className = 'marker-conflict';
+          el.style.left = item.coords.x + '%';
+          el.style.top  = item.coords.y + '%';
+          el.innerHTML = `<div class="conflict-ring"><div class="conflict-center"></div></div>`;
+          el.addEventListener('mouseenter', () => showTooltip(el, item.country, item.note));
+          el.addEventListener('mouseleave', hideTooltip);
+          el.addEventListener('click', () => { setFocus(item.country); hideTooltip(); });
+          layer.appendChild(el);
+        });
+    }
+
+    // ── 2D/3D Toggle ───────────────────────────────────────────────────────
     function setMapMode(mode) {
       activeMapMode = mode;
-      document.querySelectorAll('.map-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
+      document.querySelectorAll('.map-btn').forEach(btn =>
+        btn.classList.toggle('active', btn.dataset.mode === mode));
       mapStatusBadge.textContent = `Vista ${mode}`;
       mapState.textContent = mode === '3D'
         ? 'Cobertura activa: globo 3D · conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.'
         : 'Cobertura activa: conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.';
+
+      if (mode === '3D') {
+        tacticalCanvas.classList.add('hidden');
+        hotspotLayer.classList.add('hidden');
+        globePlaceholder.classList.remove('hidden');
+      } else {
+        tacticalCanvas.classList.remove('hidden');
+        hotspotLayer.classList.remove('hidden');
+        globePlaceholder.classList.add('hidden');
+      }
     }
+
+    // ── Init tactical map ──────────────────────────────────────────────────
+    function initTacticalMap() {
+      drawTacticalMap();
+      renderTacticalMarkers();
+      renderConflictZones();
+    }
+
+    window.addEventListener('resize', () => {
+      if (activeMapMode === '2D') drawTacticalMap();
+    });
 
     function runCommand() {
       const raw = commandInput.value.trim();
@@ -1724,6 +2184,7 @@
     renderChannels();
     renderRisk();
     setFocus(activeCountry);
+    initTacticalMap();
   </script>
 </body>
 </html>

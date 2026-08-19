@@ -1184,6 +1184,7 @@
             </div>
 
             <div class="hotspot-layer" id="hotspotLayer"></div>
+            <div class="hotspot-layer" id="tacticalLayer"></div>
             <div class="focus-strip" id="focusStrip"></div>
 
             <!-- Marker tooltip -->
@@ -1941,7 +1942,7 @@
       // Subtle radar glow at center
       const radGrad = ctx.createRadialGradient(W * 0.5, H * 0.45, 0, W * 0.5, H * 0.45, Math.max(W, H) * 0.45);
       radGrad.addColorStop(0, 'rgba(0, 180, 80, 0.06)');
-      radGrad.addColorStop(1, 'transparent');
+      radGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radGrad;
       ctx.fillRect(0, 0, W, H);
     }
@@ -1983,7 +1984,7 @@
     }
 
     function renderTacticalMarkers() {
-      const layer = hotspotLayer;
+      const layer = document.getElementById('tacticalLayer');
 
       // ── Tropical Storms ──
       tropicalStorms.forEach(storm => {
@@ -2035,7 +2036,7 @@
     }
 
     function renderConflictZones() {
-      const layer = hotspotLayer;
+      const layer = document.getElementById('tacticalLayer');
       watchlistData
         .filter(item => item.type === 'conflict' && item.severityClass === 'critical')
         .forEach(item => {
@@ -2079,8 +2080,12 @@
       renderConflictZones();
     }
 
+    let _resizeTimer;
     window.addEventListener('resize', () => {
-      if (activeMapMode === '2D') drawTacticalMap();
+      clearTimeout(_resizeTimer);
+      _resizeTimer = setTimeout(() => {
+        if (activeMapMode === '2D') drawTacticalMap();
+      }, 150);
     });
 
     function runCommand() {

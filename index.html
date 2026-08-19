@@ -1058,6 +1058,7 @@
         grid-template-columns: 1fr;
       }
       .command-row { grid-template-columns: 1fr; }
+      .world-stage { aspect-ratio: 1.35 / 1; }
       .map-hud {
         position: static;
         width: 100%;
@@ -1066,6 +1067,21 @@
       .map-title {
         position: static;
         padding: 20px 20px 0;
+      }
+      .focus-strip,
+      .marker-storm-label,
+      .marker-storm-kts,
+      .iceberg-label,
+      .iceberg-area { display: none; }
+      .map-legend {
+        left: 12px;
+        right: 12px;
+        bottom: 10px;
+        gap: 4px;
+      }
+      .legend-item {
+        font-size: 10px;
+        padding: 2px 7px;
       }
     }
 
@@ -1618,6 +1634,7 @@
         el.setAttribute('aria-label', `Foco ${item.country}`);
         el.addEventListener('mouseenter', () => showTooltip(el, item.country, item.note));
         el.addEventListener('mouseleave', hideTooltip);
+        el.addEventListener('touchstart', e => showTooltipTouch(el, item.country, item.note, e), { passive: false });
         el.addEventListener('click', () => { setFocus(item.country); hideTooltip(); });
         hotspotLayer.appendChild(el);
       });
@@ -1983,18 +2000,38 @@
     const tooltipTitle = document.getElementById('tooltipTitle');
     const tooltipBody  = document.getElementById('tooltipBody');
 
-    function showTooltip(el, title, body) {
+    let _tooltipTimer = null;
+
+    function showTooltip(el, title, body, touchEvt) {
+      clearTimeout(_tooltipTimer);
       tooltipTitle.textContent = title;
       tooltipBody.textContent  = body;
       mapTooltipEl.classList.remove('hidden');
       const stage = worldStage.getBoundingClientRect();
-      const rect  = el.getBoundingClientRect();
-      const cx = rect.left + rect.width  / 2 - stage.left;
-      const cy = rect.top                    - stage.top;
+      let cx, cy;
+      if (touchEvt && touchEvt.touches && touchEvt.touches.length) {
+        const t = touchEvt.touches[0];
+        cx = t.clientX - stage.left;
+        cy = t.clientY - stage.top;
+      } else {
+        const rect = el.getBoundingClientRect();
+        cx = rect.left + rect.width / 2 - stage.left;
+        cy = rect.top                   - stage.top;
+      }
       mapTooltipEl.style.left = cx + 'px';
       mapTooltipEl.style.top  = cy + 'px';
     }
-    function hideTooltip() { mapTooltipEl.classList.add('hidden'); }
+
+    function hideTooltip() {
+      clearTimeout(_tooltipTimer);
+      mapTooltipEl.classList.add('hidden');
+    }
+
+    function showTooltipTouch(el, title, body, e) {
+      e.preventDefault();
+      showTooltip(el, title, body, e);
+      _tooltipTimer = setTimeout(hideTooltip, 3000);
+    }
 
     function stormSVG() {
       return `<svg class="storm-icon" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2030,6 +2067,7 @@
         `;
         el.addEventListener('mouseenter', () => showTooltip(el, storm.name, storm.info));
         el.addEventListener('mouseleave', hideTooltip);
+        el.addEventListener('touchstart', e => showTooltipTouch(el, storm.name, storm.info, e), { passive: false });
         el.addEventListener('click', () => showTooltip(el, storm.name, storm.info));
         layer.appendChild(el);
       });
@@ -2047,6 +2085,7 @@
         `;
         el.addEventListener('mouseenter', () => showTooltip(el, iceberg.name, iceberg.info));
         el.addEventListener('mouseleave', hideTooltip);
+        el.addEventListener('touchstart', e => showTooltipTouch(el, iceberg.name, iceberg.info, e), { passive: false });
         el.addEventListener('click', () => showTooltip(el, iceberg.name, iceberg.info));
         layer.appendChild(el);
       });
@@ -2061,6 +2100,7 @@
         el.title = warn.name;
         el.addEventListener('mouseenter', () => showTooltip(el, warn.name, warn.info));
         el.addEventListener('mouseleave', hideTooltip);
+        el.addEventListener('touchstart', e => showTooltipTouch(el, warn.name, warn.info, e), { passive: false });
         el.addEventListener('click', () => showTooltip(el, warn.name, warn.info));
         layer.appendChild(el);
       });
@@ -2078,6 +2118,7 @@
           el.innerHTML = `<div class="conflict-ring"><div class="conflict-center"></div></div>`;
           el.addEventListener('mouseenter', () => showTooltip(el, item.country, item.note));
           el.addEventListener('mouseleave', hideTooltip);
+          el.addEventListener('touchstart', e => showTooltipTouch(el, item.country, item.note, e), { passive: false });
           el.addEventListener('click', () => { setFocus(item.country); hideTooltip(); });
           layer.appendChild(el);
         });

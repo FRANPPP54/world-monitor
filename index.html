@@ -12,6 +12,7 @@
       --panel-2: rgba(15, 29, 48, 0.95);
       --line: rgba(122, 153, 194, 0.18);
       --line-strong: rgba(122, 153, 194, 0.3);
+      --line-subtle: rgba(122, 153, 194, 0.12);
       --text: #eef4ff;
       --muted: #8da0bf;
       --accent: #3b82f6;
@@ -167,8 +168,13 @@
       border-color: rgba(147, 197, 253, 0.35);
     }
 
+    .solid-btn:hover {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.95), rgba(56, 189, 248, 0.95));
+      border-color: rgba(186, 230, 253, 0.5);
+    }
+
     .ticker {
-      border-radius: 18px;
+      border-radius: 24px;
       overflow: hidden;
       padding: 12px 0;
       position: relative;
@@ -822,7 +828,7 @@
     }
 
     .metric-card {
-      border: 1px solid rgba(148, 163, 184, 0.16);
+      border: 1px solid var(--line-subtle);
       border-left: 3px solid var(--accent);
       border-radius: 18px;
       padding: 14px;
@@ -867,7 +873,7 @@
     }
 
     .list-row {
-      border: 1px solid rgba(148, 163, 184, 0.14);
+      border: 1px solid var(--line-subtle);
       border-radius: 16px;
       padding: 12px;
       background: rgba(9, 18, 32, 0.82);
@@ -957,10 +963,16 @@
       grid-template-columns: auto 1fr auto;
       gap: 12px;
       align-items: center;
-      border: 1px solid rgba(148, 163, 184, 0.14);
+      border: 1px solid var(--line-subtle);
       border-radius: 16px;
       padding: 12px;
       background: rgba(8, 15, 28, 0.82);
+      transition: border-color 0.2s, background 0.2s;
+    }
+
+    .alert-row:hover {
+      border-color: rgba(96, 165, 250, 0.28);
+      background: rgba(8, 15, 36, 0.9);
     }
 
     .alert-dot {
@@ -998,12 +1010,13 @@
     }
 
     .channel-btn {
-      border: 1px solid rgba(148, 163, 184, 0.18);
+      border: 1px solid var(--line);
       background: rgba(17, 26, 42, 0.92);
       color: #d7e6ff;
       padding: 10px 14px;
       font-size: 11px;
       cursor: pointer;
+      transition: background 0.2s ease, border-color 0.2s ease;
     }
 
     .channel-btn.active {
@@ -1011,11 +1024,16 @@
       border-color: rgba(254, 202, 202, 0.4);
     }
 
+    .channel-btn:hover:not(.active) {
+      background: rgba(30, 42, 65, 0.95);
+      border-color: var(--line-strong);
+    }
+
     .player-shell {
       position: relative;
       border-radius: 20px;
       overflow: hidden;
-      border: 1px solid rgba(148, 163, 184, 0.18);
+      border: 1px solid var(--line);
       background: #000;
       aspect-ratio: 16 / 9;
     }
@@ -1037,7 +1055,7 @@
       align-items: center;
       gap: 10px;
       padding: 11px 0;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+      border-bottom: 1px solid var(--line-subtle);
       font-size: 13px;
     }
 
@@ -1055,13 +1073,18 @@
     }
 
     .summary-card {
-      border: 1px solid rgba(148, 163, 184, 0.14);
+      border: 1px solid var(--line-subtle);
       border-radius: 16px;
       padding: 14px;
       background: rgba(8, 15, 28, 0.78);
       line-height: 1.6;
       font-size: 13px;
       color: #dce8ff;
+      transition: border-color 0.2s;
+    }
+
+    .summary-card:hover {
+      border-color: var(--line-strong);
     }
 
     .summary-footer {
@@ -1079,10 +1102,10 @@
       transform: translateX(-50%);
       bottom: 14px;
       width: min(720px, calc(100% - 24px));
-      border: 1px solid rgba(148, 163, 184, 0.18);
+      border: 1px solid var(--line);
       background: rgba(5, 12, 22, 0.88);
       backdrop-filter: blur(16px);
-      border-radius: 22px;
+      border-radius: 24px;
       display: grid;
       grid-template-columns: repeat(5, 1fr);
       gap: 6px;
@@ -1105,6 +1128,7 @@
       align-items: center;
       gap: 3px;
       line-height: 1;
+      transition: background 0.15s ease, color 0.15s ease;
     }
 
     .bottom-nav button .nav-icon {
@@ -1115,6 +1139,11 @@
     .bottom-nav button.active {
       background: rgba(37, 99, 235, 0.18);
       color: #fff;
+    }
+
+    .bottom-nav button:hover:not(.active) {
+      background: rgba(30, 42, 65, 0.7);
+      color: var(--text);
     }
 
     @media (max-width: 1220px) {
@@ -1900,7 +1929,7 @@
       });
 
       document.querySelectorAll('.hotspot-label').forEach(label => {
-        label.style.borderColor = 'rgba(148, 163, 184, 0.18)';
+        label.style.borderColor = 'rgba(122, 153, 194, 0.18)';
         label.style.color = '#fff';
       });
 

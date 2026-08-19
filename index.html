@@ -1,131 +1,671 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>World Monitor - Noticias en Vivo</title>
-    <style>
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: #0f1115;
-            color: #ffffff;
-            margin: 0;
-            padding: 15px;
-            text-align: center;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>World Monitor - Noticias en Vivo</title>
+  <style>
+    :root {
+      --bg: #0f1116;
+      --panel: #171b23;
+      --panel-2: #1d2230;
+      --line: #2a3243;
+      --text: #eef2ff;
+      --muted: #97a2b7;
+      --accent: #ef4444;
+      --ok: #22c55e;
+      --warn: #f59e0b;
+      --critical: var(--accent);
+      --elevated: #f97316;
+      --watch: #facc15;
+    }
 
-        .dashboard-container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: #181b22;
-            border-radius: 12px;
-            border: 1px solid #2a2e39;
-            overflow: hidden;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        }
+    * { box-sizing: border-box; }
 
-        .header-bar {
-            background: #1e222b;
-            padding: 12px;
-            font-size: 14px;
-            font-weight: bold;
-            letter-spacing: 1px;
-            border-bottom: 1px solid #2a2e39;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 16px 16px 90px;
+    }
 
-        .live-dot {
-            width: 8px;
-            height: 8px;
-            background-color: #ff3333;
-            border-radius: 50%;
-            display: inline-block;
-            box-shadow: 0 0 8px #ff3333;
-        }
+    .app {
+      width: min(980px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 12px;
+    }
 
-        .channels-bar {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 6px;
-            padding: 10px;
-            background: #14171f;
-            border-bottom: 1px solid #2a2e39;
-            justify-content: center;
-        }
+    .title {
+      text-align: center;
+      font-size: clamp(26px, 5vw, 42px);
+      font-weight: 800;
+      margin: 8px 0 2px;
+      letter-spacing: .2px;
+    }
 
-        .channel-btn {
-            background-color: #222632;
-            color: #a0aec0;
-            border: 1px solid #2f3545;
-            padding: 8px 14px;
-            font-size: 12px;
-            font-weight: bold;
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s ease;
-        }
+    .subtitle {
+      margin: 0;
+      color: var(--muted);
+      text-align: center;
+      font-size: 13px;
+    }
 
-        .channel-btn:hover {
-            background-color: #2f3545;
-            color: #ffffff;
-        }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, .3);
+    }
 
-        .channel-btn.active {
-            background-color: #e53e3e;
-            color: #ffffff;
-            border-color: #e53e3e;
-        }
+    .card-head {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
 
-        .video-container {
-            position: relative;
-            width: 100%;
-            aspect-ratio: 16 / 9;
-            background: #000;
-        }
+    .card-head h2 {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: .9px;
+      text-transform: uppercase;
+    }
 
-        iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-    </style>
+    .body-pad { padding: 14px; }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--critical);
+      box-shadow: 0 0 12px var(--critical);
+      display: inline-block;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    .tag {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 4px 10px;
+      font-size: 11px;
+      color: var(--muted);
+      background: #131722;
+    }
+
+    .tabs {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .tab {
+      border: 1px solid var(--line);
+      background: #151a24;
+      color: #afbbcf;
+      border-radius: 10px;
+      padding: 9px 8px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      background: #20283a;
+      color: #fff;
+      border-color: #374258;
+    }
+
+    .command-row {
+      display: grid;
+      gap: 10px;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+
+    .command-input {
+      width: 100%;
+      border: 1px solid var(--line);
+      background: #0f1420;
+      color: #fff;
+      border-radius: 10px;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .btn {
+      border: 1px solid #3a455d;
+      background: #20293a;
+      color: #fff;
+      padding: 11px 14px;
+      border-radius: 10px;
+      font-weight: 700;
+      font-size: 12px;
+      cursor: pointer;
+    }
+
+    .command-feedback {
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+      min-height: 18px;
+    }
+
+    .map-toggle {
+      display: inline-flex;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      overflow: hidden;
+      background: #121722;
+    }
+
+    .map-toggle button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      padding: 8px 14px;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .map-toggle button.active {
+      background: #2f3a52;
+      color: #fff;
+    }
+
+    .map-state {
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+
+    .insight {
+      border: 1px solid var(--line);
+      background: #121722;
+      border-radius: 12px;
+      padding: 12px;
+      line-height: 1.45;
+      font-size: 13px;
+      color: #dbe4ff;
+    }
+
+    .risk-grid {
+      display: grid;
+      gap: 8px;
+    }
+
+    .risk-item {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      border: 1px solid var(--line);
+      background: #141a25;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .risk-title { font-weight: 700; font-size: 14px; }
+    .risk-sub { color: var(--muted); font-size: 12px; }
+
+    .severity {
+      font-size: 11px;
+      font-weight: 800;
+      border-radius: 999px;
+      padding: 5px 9px;
+      letter-spacing: .3px;
+    }
+
+    .severity.critical { background: rgba(239,68,68,.14); color: #fca5a5; border: 1px solid rgba(239,68,68,.35); }
+    .severity.elevated { background: rgba(249,115,22,.14); color: #fdba74; border: 1px solid rgba(249,115,22,.35); }
+    .severity.watch { background: rgba(250,204,21,.14); color: #fde68a; border: 1px solid rgba(250,204,21,.35); }
+
+    .score-grid {
+      display: grid;
+      gap: 8px;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    }
+
+    .score-card {
+      border: 1px solid var(--line);
+      background: #141a25;
+      border-radius: 12px;
+      padding: 10px;
+    }
+
+    .score-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 6px;
+    }
+
+    .score-num { font-size: 24px; font-weight: 800; }
+
+    .trend.up { color: #f87171; }
+    .trend.down { color: #4ade80; }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 4px;
+      margin-top: 8px;
+      color: var(--muted);
+      font-size: 11px;
+    }
+
+    .channels-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      padding: 12px;
+      border-bottom: 1px solid var(--line);
+      justify-content: center;
+      background: #141925;
+    }
+
+    .channel-btn {
+      border: 1px solid #30384d;
+      background: #232b3d;
+      color: #bac4d8;
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-weight: 800;
+      font-size: 12px;
+      cursor: pointer;
+      min-width: 120px;
+    }
+
+    .channel-btn.active {
+      background: #ef4444;
+      border-color: #ef4444;
+      color: #fff;
+    }
+
+    .video-container {
+      width: 100%;
+      aspect-ratio: 16/9;
+      background: #000;
+    }
+
+    iframe {
+      width: 100%;
+      height: 100%;
+      border: 0;
+    }
+
+    .bottom-nav {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border-top: 1px solid var(--line);
+      background: rgba(15, 17, 22, .97);
+      backdrop-filter: blur(8px);
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      padding: 8px 6px;
+      gap: 4px;
+      z-index: 50;
+    }
+
+    .bottom-nav button {
+      border: 0;
+      background: transparent;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 8px 4px;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .bottom-nav button.active {
+      color: #fff;
+      background: #1f2738;
+    }
+
+    @media (max-width: 560px) {
+      body { padding: 10px 10px 88px; }
+      .channel-btn { min-width: 104px; }
+      .tabs { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+  </style>
 </head>
 <body>
+  <div class="app">
+    <h1 class="title">World Monitor</h1>
+    <p class="subtitle">Panel de monitoreo geopolítico y económico en tiempo real</p>
 
-    <div class="dashboard-container">
-        <!-- Cabecera -->
-        <div class="header-bar">
-            <span class="live-dot"></span> NOTICIAS EN VIVO <span style="color: #a0aec0; font-weight: normal;">• 93</span>
+    <section class="card" id="commandSection">
+      <div class="tabs" id="topicTabs">
+        <button class="tab active" data-topic="all">Todos</button>
+        <button class="tab" data-topic="pro">PRO</button>
+        <button class="tab" data-topic="principal">Principal</button>
+        <button class="tab" data-topic="intel">Inteligencia</button>
+      </div>
+      <div class="body-pad">
+        <div class="command-row">
+          <input id="commandInput" class="command-input" placeholder="Buscar o escribir un comando..." />
+          <button class="btn" id="runCommandBtn">Ejecutar</button>
         </div>
-
-        <!-- Botones de Canales -->
-        <div class="channels-bar">
-            <button class="channel-btn active" onclick="changeChannel('UCIALMKvObZNtJ6AmdCLP7Lg', this)">BLOOMBERG</button>
-            <button class="channel-btn" onclick="changeChannel('UCoMdktPbSTixAyNGwb-UYkQ', this)">SKYNEWS</button>
-            <button class="channel-btn" onclick="changeChannel('UCSrZ3UV4jOidv8ppoVuvW9Q', this)">EURONEWS</button>
-            <button class="channel-btn" onclick="changeChannel('UCknLrEdhRCp1aegoMqRaCZg', this)">DW</button>
-            <button class="channel-btn" onclick="changeChannel('UCrp_UI8XtuYfpiqluWLD7Lw', this)">CNBC</button>
+        <div class="command-feedback" id="commandFeedback">Comandos: "volar a [país]", "abrir alertas", "abrir insights", "abrir vivo".</div>
+        <div style="margin-top: 12px;">
+          <div class="map-toggle">
+            <button class="active" data-mode="2D">2D</button>
+            <button data-mode="3D">3D</button>
+          </div>
+          <div class="map-state" id="mapState">Visualización activa: Mapa geopolítico 2D.</div>
         </div>
+      </div>
+    </section>
 
-        <!-- Reproductor -->
-        <div class="video-container">
-            <iframe id="newsPlayer" src="https://www.youtube.com/embed/live_stream?channel=UCIALMKvObZNtJ6AmdCLP7Lg&autoplay=1&rel=0&modestbranding=1" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-        </div>
-    </div>
+    <section class="card" id="insightsSection">
+      <div class="card-head">
+        <h2>Insights de IA / Resumen Mundial</h2>
+        <span class="tag">Auto</span>
+      </div>
+      <div class="body-pad">
+        <div class="insight" id="insightText"></div>
+      </div>
+    </section>
 
-    <script>
-        function changeChannel(channelId, buttonElement) {
-            const player = document.getElementById('newsPlayer');
-            player.src = `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&rel=0&modestbranding=1`;
+    <section class="card" id="riskSection">
+      <div class="card-head">
+        <h2>Puntos Focales de Riesgo</h2>
+        <span class="tag" id="riskCount">0 focos</span>
+      </div>
+      <div class="body-pad">
+        <div class="risk-grid" id="riskGrid"></div>
+      </div>
+    </section>
 
-            const buttons = document.querySelectorAll('.channel-btn');
-            buttons.forEach(btn => btn.classList.remove('active'));
-            buttonElement.classList.add('active');
+    <section class="card" id="alertsSection">
+      <div class="card-head">
+        <h2>Alertas e Índice de Inestabilidad</h2>
+        <span class="tag">U · C · S · I</span>
+      </div>
+      <div class="body-pad">
+        <div class="score-grid" id="scoreGrid"></div>
+      </div>
+    </section>
+
+    <section class="card" id="liveSection">
+      <div class="card-head">
+        <h2><span class="dot"></span>Noticias en Vivo</h2>
+        <span class="tag">93</span>
+      </div>
+      <div class="channels-bar" id="channelsBar"></div>
+      <div class="video-container">
+        <iframe id="newsPlayer" src="https://www.youtube.com/embed/live_stream?channel=UCIALMKvObZNtJ6AmdCLP7Lg&autoplay=1&rel=0&modestbranding=1" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+      </div>
+    </section>
+  </div>
+
+  <nav class="bottom-nav" id="bottomNav">
+    <button class="active" data-target="insightsSection">Today</button>
+    <button data-target="riskSection">Map</button>
+    <button data-target="commandSection">Search</button>
+    <button data-target="alertsSection">Alerts</button>
+    <button data-target="liveSection">More</button>
+  </nav>
+
+  <script>
+    const channels = [
+      { name: 'BLOOMBERG', id: 'UCIALMKvObZNtJ6AmdCLP7Lg' },
+      { name: 'SKY NEWS', id: 'UCoMdktPbSTixAyNGwb-UYkQ' },
+      { name: 'EURONEWS', id: 'UCSrZ3UV4jOidv8ppoVuvW9Q' },
+      { name: 'DW', id: 'UCknLrEdhRCp1aegoMqRaCZg' },
+      { name: 'CNBC', id: 'UCrp_UI8XtuYfpiqluWLD7Lw' },
+      { name: 'CNN', id: 'UCupvZG-5ko_eiXAupbDfxWw' },
+      { name: 'FRANCE 24', id: 'UCQfwfsi5VrQ8yKZ-UWmAEFg' },
+      { name: 'AL ARABIYA', id: 'UCfjzQf4sAuknzh4N6R6M-5g' },
+      { name: 'AL JAZEERA', id: 'UCNye-wNBqNL5ZzHSJj3l8Bg' }
+    ];
+
+    const riskData = [
+      { country: 'Taiwán', level: 'CRITICAL', severityClass: 'critical', news: 182, intel: 49 },
+      { country: 'Ucrania', level: 'CRITICAL', severityClass: 'critical', news: 214, intel: 61 },
+      { country: 'Irán', level: 'ELEVATED', severityClass: 'elevated', news: 127, intel: 36 },
+      { country: 'Mar Rojo', level: 'ELEVATED', severityClass: 'elevated', news: 95, intel: 27 },
+      { country: 'Sahel', level: 'WATCH', severityClass: 'watch', news: 51, intel: 19 }
+    ];
+
+    const scoreData = [
+      { country: 'Ucrania', score: 92, trend: 'up', trendText: '▲ +4', U: 0.92, C: 0.88, S: 0.95, I: 0.84 },
+      { country: 'Taiwán', score: 89, trend: 'up', trendText: '▲ +3', U: 0.87, C: 0.82, S: 0.91, I: 0.79 },
+      { country: 'Irán', score: 76, trend: 'down', trendText: '▼ -2', U: 0.71, C: 0.78, S: 0.8, I: 0.74 }
+    ];
+
+    const PRINCIPAL_COUNTRIES = new Set(['Ucrania', 'Taiwán']);
+    const INTEL_THRESHOLD = 30;
+    const FLY_PREFIX = 'volar a ';
+
+    const topicFilters = {
+      all: () => true,
+      pro: item => item.level !== 'WATCH',
+      principal: item => PRINCIPAL_COUNTRIES.has(item.country),
+      intel: item => item.intel >= INTEL_THRESHOLD
+    };
+
+    const topicTabs = document.getElementById('topicTabs');
+    const riskGrid = document.getElementById('riskGrid');
+    const riskCount = document.getElementById('riskCount');
+    const scoreGrid = document.getElementById('scoreGrid');
+    const insightText = document.getElementById('insightText');
+    const channelsBar = document.getElementById('channelsBar');
+    const player = document.getElementById('newsPlayer');
+    const commandInput = document.getElementById('commandInput');
+    const commandFeedback = document.getElementById('commandFeedback');
+    const runCommandBtn = document.getElementById('runCommandBtn');
+    const mapState = document.getElementById('mapState');
+    const navButtons = document.querySelectorAll('#bottomNav button');
+
+    let activeTopic = 'all';
+
+    function slugify(text) {
+      return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    function normalizeCommand(text) {
+      return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+    }
+
+    function embedUrl(channelId) {
+      return `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&rel=0&modestbranding=1`;
+    }
+
+    function renderChannels() {
+      channelsBar.innerHTML = '';
+      channels.forEach((channel, index) => {
+        const btn = document.createElement('button');
+        btn.className = `channel-btn ${index === 0 ? 'active' : ''}`;
+        btn.textContent = channel.name;
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.channel-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          player.src = embedUrl(channel.id);
+        });
+        channelsBar.appendChild(btn);
+      });
+    }
+
+    function renderInsights(filtered) {
+      if (!filtered.length) {
+        insightText.textContent = 'Sin eventos en el filtro actual.';
+        return;
+      }
+      const top = filtered.slice().sort((a, b) => (b.news + b.intel) - (a.news + a.intel))[0];
+      insightText.textContent = `Se detecta presión geopolítica concentrada en ${top.country}, con etiqueta ${top.level}. Las señales combinadas muestran aumento en declaraciones oficiales, fricción comercial y actividad militar regional. El modelo recomienda vigilancia reforzada sobre corredores energéticos, aranceles estratégicos y variaciones de postura diplomática de bloques aliados durante las próximas 24 horas.`;
+    }
+
+    function renderRisk() {
+      const filtered = riskData.filter(topicFilters[activeTopic]);
+      riskGrid.innerHTML = '';
+      filtered.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'risk-item';
+        row.id = `risk-${slugify(item.country)}`;
+
+        const info = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'risk-title';
+        title.textContent = item.country;
+
+        const sub = document.createElement('div');
+        sub.className = 'risk-sub';
+        sub.textContent = `${item.news} noticias · ${item.intel} señales intel`;
+
+        const severity = document.createElement('span');
+        severity.className = `severity ${item.severityClass}`;
+        severity.textContent = item.level;
+
+        info.appendChild(title);
+        info.appendChild(sub);
+        row.appendChild(info);
+        row.appendChild(severity);
+        riskGrid.appendChild(row);
+      });
+      riskCount.textContent = `${filtered.length} focos`;
+      renderInsights(filtered);
+    }
+
+    function renderScores() {
+      scoreGrid.innerHTML = '';
+      scoreData.forEach(item => {
+        const card = document.createElement('div');
+        card.className = 'score-card';
+
+        const top = document.createElement('div');
+        top.className = 'score-top';
+
+        const country = document.createElement('strong');
+        country.textContent = item.country;
+
+        const trend = document.createElement('span');
+        trend.className = `trend ${item.trend}`;
+        trend.textContent = item.trendText;
+
+        const score = document.createElement('div');
+        score.className = 'score-num';
+        score.textContent = String(item.score);
+
+        const metrics = document.createElement('div');
+        metrics.className = 'metrics';
+        ['U', 'C', 'S', 'I'].forEach(key => {
+          const metric = document.createElement('span');
+          metric.textContent = `${key} ${item[key]}`;
+          metrics.appendChild(metric);
+        });
+
+        top.appendChild(country);
+        top.appendChild(trend);
+        card.appendChild(top);
+        card.appendChild(score);
+        card.appendChild(metrics);
+        scoreGrid.appendChild(card);
+      });
+    }
+
+    function setActiveTopic(topic) {
+      activeTopic = topic;
+      document.querySelectorAll('.tab').forEach(tab => tab.classList.toggle('active', tab.dataset.topic === topic));
+      renderRisk();
+    }
+
+    function runCommand() {
+      const raw = commandInput.value.trim();
+      if (!raw) {
+        commandFeedback.textContent = 'Escribe un comando o país para continuar.';
+        return;
+      }
+
+      const cmd = normalizeCommand(raw);
+      if (cmd.startsWith(FLY_PREFIX)) {
+        const countryQuery = cmd.slice(FLY_PREFIX.length).trim();
+        const id = `risk-${slugify(countryQuery)}`;
+        const target = document.getElementById(id);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          target.style.outline = '2px solid #60a5fa';
+          setTimeout(() => { target.style.outline = 'none'; }, 1200);
+          commandFeedback.textContent = `Comando ejecutado: vista enfocada en ${countryQuery}.`;
+        } else {
+          commandFeedback.textContent = `No se encontró "${countryQuery}" en los focos actuales.`;
         }
-    </script>
+        return;
+      }
 
+      const openTargets = {
+        [normalizeCommand('abrir alertas')]: 'alertsSection',
+        [normalizeCommand('abrir insights')]: 'insightsSection',
+        [normalizeCommand('abrir vivo')]: 'liveSection'
+      };
+
+      if (openTargets[cmd]) {
+        document.getElementById(openTargets[cmd]).scrollIntoView({ behavior: 'smooth', block: 'start' });
+        commandFeedback.textContent = `Comando ejecutado: ${cmd}.`;
+        return;
+      }
+
+      commandFeedback.textContent = 'Comando no reconocido. Prueba: "volar a Ucrania" o "abrir alertas".';
+    }
+
+    topicTabs.addEventListener('click', (event) => {
+      const button = event.target.closest('.tab');
+      if (!button) return;
+      setActiveTopic(button.dataset.topic);
+    });
+
+    document.querySelectorAll('.map-toggle button').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('.map-toggle button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        mapState.textContent = btn.dataset.mode === '3D'
+          ? 'Visualización activa: Globo interactivo 3D.'
+          : 'Visualización activa: Mapa geopolítico 2D.';
+      });
+    });
+
+    runCommandBtn.addEventListener('click', runCommand);
+    commandInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') runCommand();
+    });
+
+    navButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        navButtons.forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        const target = document.getElementById(btn.dataset.target);
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (btn.dataset.target === 'commandSection') {
+            commandInput.focus();
+          }
+        }
+      });
+    });
+
+    renderChannels();
+    renderRisk();
+    renderScores();
+  </script>
 </body>
 </html>

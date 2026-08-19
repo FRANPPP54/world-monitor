@@ -2192,17 +2192,19 @@
       });
 
       // ── Antenna / satellite dish markers ──
+      layer.querySelectorAll('.marker-antenna').forEach(el => el.remove());
+      const antennaSVG = `<svg class="antenna-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <line x1="12" y1="22" x2="12" y2="11" stroke="rgba(200,220,255,0.85)" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M6 17 Q12 7 18 17" stroke="rgba(200,220,255,0.85)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
+        <path d="M4 20 Q12 2 20 20" stroke="rgba(200,220,255,0.4)" stroke-width="1" fill="none" stroke-linecap="round"/>
+        <circle cx="12" cy="11" r="2" fill="rgba(200,220,255,0.9)"/>
+      </svg>`;
       antennaMarkers.forEach(ant => {
         const el = document.createElement('div');
         el.className = 'marker-antenna';
         el.style.left = ant.x + '%';
         el.style.top  = ant.y + '%';
-        el.innerHTML = `<svg class="antenna-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <line x1="12" y1="22" x2="12" y2="11" stroke="rgba(200,220,255,0.85)" stroke-width="1.5" stroke-linecap="round"/>
-          <path d="M6 17 Q12 7 18 17" stroke="rgba(200,220,255,0.85)" stroke-width="1.4" fill="none" stroke-linecap="round"/>
-          <path d="M4 20 Q12 2 20 20" stroke="rgba(200,220,255,0.4)" stroke-width="1" fill="none" stroke-linecap="round"/>
-          <circle cx="12" cy="11" r="2" fill="rgba(200,220,255,0.9)"/>
-        </svg>`;
+        el.innerHTML = antennaSVG;
         layer.appendChild(el);
       });
     }

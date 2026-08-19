@@ -934,7 +934,7 @@
               <button class="map-btn active" data-mode="2D">Mapa 2D</button>
               <button class="map-btn" data-mode="3D">Globo 3D</button>
             </div>
-            <div class="pill" id="mapState">Cobertura activa: conflictos ⚔, político 🏛, pandemia 🦠, catástrofes 🌪 y pobreza 💸.</div>
+            <div class="pill" id="mapState">Cobertura activa: conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.</div>
           </div>
 
           <div class="world-stage">
@@ -1184,7 +1184,7 @@
         country: 'Mar Rojo',
         level: 'ELEVATED',
         severityClass: 'elevated',
-        type: 'political',
+        type: 'conflict',
         news: 95,
         intel: 27,
         coords: { x: 57, y: 54 },
@@ -1619,8 +1619,8 @@
       document.querySelectorAll('.map-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
       mapStatusBadge.textContent = `Vista ${mode}`;
       mapState.textContent = mode === '3D'
-        ? 'Cobertura activa: globo 3D · conflictos ⚔, político 🏛, pandemia 🦠, catástrofes 🌪 y pobreza 💸.'
-        : 'Cobertura activa: conflictos ⚔, político 🏛, pandemia 🦠, catástrofes 🌪 y pobreza 💸.';
+        ? 'Cobertura activa: globo 3D · conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.'
+        : 'Cobertura activa: conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.';
     }
 
     function runCommand() {

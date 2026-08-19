@@ -15,7 +15,7 @@
       --accent: #ef4444;
       --ok: #22c55e;
       --warn: #f59e0b;
-      --critical: #ef4444;
+      --critical: var(--accent);
       --elevated: #f97316;
       --watch: #facc15;
     }
@@ -345,7 +345,7 @@
     <h1 class="title">World Monitor</h1>
     <p class="subtitle">Panel de monitoreo geopolítico y económico en tiempo real</p>
 
-    <section class="card">
+    <section class="card" id="commandSection">
       <div class="tabs" id="topicTabs">
         <button class="tab active" data-topic="all">Todos</button>
         <button class="tab" data-topic="pro">PRO</button>
@@ -405,7 +405,7 @@
       </div>
       <div class="channels-bar" id="channelsBar"></div>
       <div class="video-container">
-        <iframe id="newsPlayer" src="" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+        <iframe id="newsPlayer" src="https://www.youtube.com/embed/live_stream?channel=UCIALMKvObZNtJ6AmdCLP7Lg&autoplay=1&rel=0&modestbranding=1" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
       </div>
     </section>
   </div>
@@ -413,7 +413,7 @@
   <nav class="bottom-nav" id="bottomNav">
     <button class="active" data-target="insightsSection">Today</button>
     <button data-target="riskSection">Map</button>
-    <button data-target="commandInput">Search</button>
+    <button data-target="commandSection">Search</button>
     <button data-target="alertsSection">Alerts</button>
     <button data-target="liveSection">More</button>
   </nav>
@@ -445,11 +445,15 @@
       { country: 'Irán', score: 76, trend: 'down', trendText: '▼ -2', U: 0.71, C: 0.78, S: 0.8, I: 0.74 }
     ];
 
+    const PRINCIPAL_COUNTRIES = new Set(['Ucrania', 'Taiwán']);
+    const INTEL_THRESHOLD = 30;
+    const FLY_PREFIX = 'volar a ';
+
     const topicFilters = {
       all: () => true,
       pro: item => item.level !== 'WATCH',
-      principal: item => ['Ucrania', 'Taiwán'].includes(item.country),
-      intel: item => item.intel >= 30
+      principal: item => PRINCIPAL_COUNTRIES.has(item.country),
+      intel: item => item.intel >= INTEL_THRESHOLD
     };
 
     const topicTabs = document.getElementById('topicTabs');
@@ -466,6 +470,23 @@
     const navButtons = document.querySelectorAll('#bottomNav button');
 
     let activeTopic = 'all';
+
+    function slugify(text) {
+      return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    function normalizeCommand(text) {
+      return text
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+    }
 
     function embedUrl(channelId) {
       return `https://www.youtube.com/embed/live_stream?channel=${channelId}&autoplay=1&rel=0&modestbranding=1`;
@@ -484,7 +505,6 @@
         });
         channelsBar.appendChild(btn);
       });
-      player.src = embedUrl(channels[0].id);
     }
 
     function renderInsights(filtered) {
@@ -492,7 +512,7 @@
         insightText.textContent = 'Sin eventos en el filtro actual.';
         return;
       }
-      const top = filtered.slice().sort((a, b) => b.news + b.intel - (a.news + a.intel))[0];
+      const top = filtered.slice().sort((a, b) => (b.news + b.intel) - (a.news + a.intel))[0];
       insightText.textContent = `Se detecta presión geopolítica concentrada en ${top.country}, con etiqueta ${top.level}. Las señales combinadas muestran aumento en declaraciones oficiales, fricción comercial y actividad militar regional. El modelo recomienda vigilancia reforzada sobre corredores energéticos, aranceles estratégicos y variaciones de postura diplomática de bloques aliados durante las próximas 24 horas.`;
     }
 
@@ -502,14 +522,25 @@
       filtered.forEach(item => {
         const row = document.createElement('div');
         row.className = 'risk-item';
-        row.id = `risk-${item.country.toLowerCase().replace(/\s+/g, '-')}`;
-        row.innerHTML = `
-          <div>
-            <div class="risk-title">${item.country}</div>
-            <div class="risk-sub">${item.news} noticias · ${item.intel} señales intel</div>
-          </div>
-          <span class="severity ${item.severityClass}">${item.level}</span>
-        `;
+        row.id = `risk-${slugify(item.country)}`;
+
+        const info = document.createElement('div');
+        const title = document.createElement('div');
+        title.className = 'risk-title';
+        title.textContent = item.country;
+
+        const sub = document.createElement('div');
+        sub.className = 'risk-sub';
+        sub.textContent = `${item.news} noticias · ${item.intel} señales intel`;
+
+        const severity = document.createElement('span');
+        severity.className = `severity ${item.severityClass}`;
+        severity.textContent = item.level;
+
+        info.appendChild(title);
+        info.appendChild(sub);
+        row.appendChild(info);
+        row.appendChild(severity);
         riskGrid.appendChild(row);
       });
       riskCount.textContent = `${filtered.length} focos`;
@@ -521,19 +552,34 @@
       scoreData.forEach(item => {
         const card = document.createElement('div');
         card.className = 'score-card';
-        card.innerHTML = `
-          <div class="score-top">
-            <strong>${item.country}</strong>
-            <span class="trend ${item.trend}">${item.trendText}</span>
-          </div>
-          <div class="score-num">${item.score}</div>
-          <div class="metrics">
-            <span>U ${item.U}</span>
-            <span>C ${item.C}</span>
-            <span>S ${item.S}</span>
-            <span>I ${item.I}</span>
-          </div>
-        `;
+
+        const top = document.createElement('div');
+        top.className = 'score-top';
+
+        const country = document.createElement('strong');
+        country.textContent = item.country;
+
+        const trend = document.createElement('span');
+        trend.className = `trend ${item.trend}`;
+        trend.textContent = item.trendText;
+
+        const score = document.createElement('div');
+        score.className = 'score-num';
+        score.textContent = String(item.score);
+
+        const metrics = document.createElement('div');
+        metrics.className = 'metrics';
+        ['U', 'C', 'S', 'I'].forEach(key => {
+          const metric = document.createElement('span');
+          metric.textContent = `${key} ${item[key]}`;
+          metrics.appendChild(metric);
+        });
+
+        top.appendChild(country);
+        top.appendChild(trend);
+        card.appendChild(top);
+        card.appendChild(score);
+        card.appendChild(metrics);
         scoreGrid.appendChild(card);
       });
     }
@@ -551,26 +597,26 @@
         return;
       }
 
-      const cmd = raw.toLowerCase();
-      if (cmd.startsWith('volar a ')) {
-        const country = raw.slice(8).trim();
-        const id = `risk-${country.toLowerCase().replace(/\s+/g, '-')}`;
+      const cmd = normalizeCommand(raw);
+      if (cmd.startsWith(FLY_PREFIX)) {
+        const countryQuery = cmd.slice(FLY_PREFIX.length).trim();
+        const id = `risk-${slugify(countryQuery)}`;
         const target = document.getElementById(id);
         if (target) {
           target.scrollIntoView({ behavior: 'smooth', block: 'center' });
           target.style.outline = '2px solid #60a5fa';
           setTimeout(() => { target.style.outline = 'none'; }, 1200);
-          commandFeedback.textContent = `Comando ejecutado: vista enfocada en ${country}.`;
+          commandFeedback.textContent = `Comando ejecutado: vista enfocada en ${countryQuery}.`;
         } else {
-          commandFeedback.textContent = `No se encontró "${country}" en los focos actuales.`;
+          commandFeedback.textContent = `No se encontró "${countryQuery}" en los focos actuales.`;
         }
         return;
       }
 
       const openTargets = {
-        'abrir alertas': 'alertsSection',
-        'abrir insights': 'insightsSection',
-        'abrir vivo': 'liveSection'
+        [normalizeCommand('abrir alertas')]: 'alertsSection',
+        [normalizeCommand('abrir insights')]: 'insightsSection',
+        [normalizeCommand('abrir vivo')]: 'liveSection'
       };
 
       if (openTargets[cmd]) {
@@ -608,7 +654,12 @@
         navButtons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         const target = document.getElementById(btn.dataset.target);
-        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (target) {
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (btn.dataset.target === 'commandSection') {
+            commandInput.focus();
+          }
+        }
       });
     });
 

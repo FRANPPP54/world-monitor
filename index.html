@@ -487,6 +487,48 @@
       100% { box-shadow: 0 0 0 0 rgba(255, 255, 255, 0); }
     }
 
+    /* World map SVG background */
+    .map-svg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      opacity: 0.22;
+    }
+    .map-svg path { fill: #38bdf8; stroke: none; }
+
+    /* Hotspot type icon inside label */
+    .hotspot-icon {
+      margin-right: 4px;
+      font-style: normal;
+    }
+
+    /* Map legend */
+    .map-legend {
+      position: absolute;
+      bottom: 130px;
+      left: 20px;
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      z-index: 3;
+      pointer-events: none;
+    }
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 10px;
+      font-weight: 700;
+      color: var(--muted);
+      background: rgba(7, 13, 24, 0.82);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 999px;
+      padding: 3px 9px;
+      white-space: nowrap;
+    }
+
     .focus-strip {
       position: absolute;
       left: 20px;
@@ -892,13 +934,60 @@
               <button class="map-btn active" data-mode="2D">Mapa 2D</button>
               <button class="map-btn" data-mode="3D">Globo 3D</button>
             </div>
-            <div class="pill" id="mapState">Cobertura activa: conflictos, rutas energéticas y presión diplomática.</div>
+            <div class="pill" id="mapState">Cobertura activa: conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.</div>
           </div>
 
           <div class="world-stage">
+            <!-- SVG world map background -->
+            <svg class="map-svg" viewBox="0 0 1000 500" preserveAspectRatio="xMidYMid meet" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+              <!-- North America -->
+              <path d="M33,67 L83,89 L156,117 L175,158 L194,186 L256,206 L278,181 L292,153 L325,125 L353,119 L356,100 L306,83 L311,56 L194,42 L153,44 L108,56 Z"/>
+              <!-- Greenland -->
+              <path d="M278,47 L311,28 L369,28 L378,64 L339,81 L292,72 Z"/>
+              <!-- South America -->
+              <path d="M305,217 L286,244 L278,253 L278,342 L311,403 L353,344 L392,313 L406,264 L361,244 L331,217 Z"/>
+              <!-- Europe -->
+              <path d="M475,142 L478,128 L506,119 L486,89 L539,53 L578,56 L583,83 L567,92 L556,100 L553,119 L569,125 L592,122 L575,142 L561,144 L544,144 L533,128 L519,128 L494,111 Z"/>
+              <!-- Iberian Peninsula -->
+              <path d="M475,128 L494,125 L499,142 L490,158 L472,155 L466,142 Z"/>
+              <!-- British Isles -->
+              <path d="M480,88 L492,83 L497,95 L489,108 L477,105 Z"/>
+              <!-- Iceland -->
+              <path d="M436,69 L450,64 L461,72 L455,86 L441,89 Z"/>
+              <!-- Africa -->
+              <path d="M483,153 L528,147 L536,158 L597,164 L619,217 L642,244 L611,281 L600,317 L589,347 L550,347 L547,311 L533,283 L533,261 L508,236 L492,233 L475,236 L464,222 L453,211 L453,192 L464,172 Z"/>
+              <!-- Madagascar -->
+              <path d="M597,286 L611,275 L619,294 L617,325 L608,336 L597,322 L592,306 Z"/>
+              <!-- Asia mainland -->
+              <path d="M575,142 L600,133 L625,131 L667,128 L722,111 L778,97 L861,83 L972,67 L903,119 L856,153 L833,189 L800,217 L786,244 L722,228 L700,189 L672,181 L661,189 L633,217 L628,186 L617,156 Z"/>
+              <!-- Indian subcontinent -->
+              <path d="M672,181 L700,189 L714,208 L722,228 L714,253 L700,261 L683,253 L672,231 L664,208 Z"/>
+              <!-- Indochina / SE Asia -->
+              <path d="M786,186 L808,186 L819,203 L808,225 L789,236 L775,222 L775,203 Z"/>
+              <!-- Japan -->
+              <path d="M881,119 L894,114 L900,131 L892,147 L878,142 Z"/>
+              <!-- Australia -->
+              <path d="M814,311 L864,283 L903,292 L928,319 L919,347 L903,356 L883,347 L819,342 Z"/>
+              <!-- New Zealand North Island -->
+              <path d="M975,348 L983,339 L989,356 L981,369 L972,361 Z"/>
+              <!-- New Zealand South Island -->
+              <path d="M969,375 L978,369 L981,386 L972,397 L963,389 Z"/>
+              <!-- Antarctica -->
+              <path d="M0,478 L300,464 L500,461 L700,464 L1000,478 L1000,500 L0,500 Z"/>
+            </svg>
+
             <div class="map-title">
               <strong id="mapFocusTitle">Foco global · Ucrania</strong>
               <span id="mapFocusSubtitle">Presión militar sostenida y seguimiento energético en Europa del Este.</span>
+            </div>
+
+            <!-- Threat-type legend -->
+            <div class="map-legend">
+              <span class="legend-item"><span>⚔</span> Conflicto bélico</span>
+              <span class="legend-item"><span>🏛</span> Político</span>
+              <span class="legend-item"><span>🦠</span> Pandemia</span>
+              <span class="legend-item"><span>🌪</span> Catástrofe</span>
+              <span class="legend-item"><span>💸</span> Pobreza</span>
             </div>
 
             <div class="map-hud">
@@ -1047,6 +1136,7 @@
         country: 'Ucrania',
         level: 'CRITICAL',
         severityClass: 'critical',
+        type: 'conflict',
         news: 214,
         intel: 61,
         coords: { x: 56, y: 34 },
@@ -1062,6 +1152,7 @@
         country: 'Taiwán',
         level: 'CRITICAL',
         severityClass: 'critical',
+        type: 'conflict',
         news: 182,
         intel: 49,
         coords: { x: 79, y: 42 },
@@ -1077,6 +1168,7 @@
         country: 'Irán',
         level: 'ELEVATED',
         severityClass: 'elevated',
+        type: 'political',
         news: 127,
         intel: 36,
         coords: { x: 62, y: 47 },
@@ -1092,6 +1184,7 @@
         country: 'Mar Rojo',
         level: 'ELEVATED',
         severityClass: 'elevated',
+        type: 'conflict',
         news: 95,
         intel: 27,
         coords: { x: 57, y: 54 },
@@ -1107,6 +1200,7 @@
         country: 'Sahel',
         level: 'WATCH',
         severityClass: 'watch',
+        type: 'poverty',
         news: 51,
         intel: 19,
         coords: { x: 44, y: 49 },
@@ -1117,6 +1211,54 @@
         window: '24 h · revisión',
         windowDetail: 'Observación sobre infraestructuras críticas y presencia externa.',
         mapText: 'Riesgo persistente en gobernanza, logística y actividad insurgente.'
+      },
+      {
+        country: 'Congo RD',
+        level: 'ELEVATED',
+        severityClass: 'elevated',
+        type: 'epidemic',
+        news: 78,
+        intel: 22,
+        coords: { x: 54, y: 58 },
+        note: 'Brote activo de mpox con riesgo de propagación transfronteriza.',
+        focus: 'África Central',
+        convergence: '2 señales sincronizadas',
+        convergenceDetail: 'Salud pública, fronteras y respuesta humanitaria.',
+        window: '48 h · revisión OMS',
+        windowDetail: 'Monitoreo de casos, vacunación y vectores de difusión.',
+        mapText: 'Brote epidémico en expansión con riesgo de difusión regional.'
+      },
+      {
+        country: 'Turquía',
+        level: 'WATCH',
+        severityClass: 'watch',
+        type: 'disaster',
+        news: 43,
+        intel: 14,
+        coords: { x: 58, y: 41 },
+        note: 'Zona de falla activa; riesgo sísmico persistente y reconstrucción crítica.',
+        focus: 'Anatolia',
+        convergence: '2 señales sincronizadas',
+        convergenceDetail: 'Geología, infraestructura y asistencia internacional.',
+        window: '72 h · ciclo sísmico',
+        windowDetail: 'Observación de actividad sísmica y estabilidad estructural.',
+        mapText: 'Zona sísmica activa con impacto humanitario e infraestructural.'
+      },
+      {
+        country: 'Yemen',
+        level: 'ELEVATED',
+        severityClass: 'elevated',
+        type: 'poverty',
+        news: 62,
+        intel: 18,
+        coords: { x: 63, y: 53 },
+        note: 'Crisis humanitaria severa: hambruna, desplazamiento y colapso sanitario.',
+        focus: 'Arabia Meridional',
+        convergence: '2 señales sincronizadas',
+        convergenceDetail: 'Ayuda humanitaria, seguridad alimentaria y tensión regional.',
+        window: '24 h · ciclo ONU',
+        windowDetail: 'Seguimiento de acceso humanitario y corredores de alivio.',
+        mapText: 'Emergencia de pobreza extrema y colapso de servicios básicos.'
       }
     ];
 
@@ -1154,8 +1296,18 @@
       'Taiwán registra subida de señales marítimas y presión de semiconductores.',
       'Mar Rojo tensiona pólizas logísticas y tiempos de tránsito global.',
       'Irán permanece en vigilancia reforzada por correlación energía-defensa.',
-      'Sahel sostiene riesgo estructural sobre minerales críticos y estabilidad.'
+      'Sahel sostiene riesgo estructural sobre minerales críticos y estabilidad.',
+      'Congo RD: brote de mpox con vigilancia activa de la OMS.',
+      'Yemen: crisis humanitaria persistente con déficit de acceso y servicios.'
     ];
+
+    const THREAT_ICONS = {
+      conflict:  '⚔',
+      political: '🏛',
+      epidemic:  '🦠',
+      disaster:  '🌪',
+      poverty:   '💸'
+    };
 
     const PRINCIPAL_COUNTRIES = new Set(['Ucrania', 'Taiwán']);
     const INTEL_THRESHOLD = 30;
@@ -1267,6 +1419,7 @@
     function renderHotspots() {
       hotspotLayer.innerHTML = '';
       watchlistData.forEach(item => {
+        const icon = THREAT_ICONS[item.type] || '';
         const hotspot = document.createElement('button');
         hotspot.type = 'button';
         hotspot.className = `hotspot ${item.severityClass}`;
@@ -1274,7 +1427,7 @@
         hotspot.style.left = `${item.coords.x}%`;
         hotspot.style.top = `${item.coords.y}%`;
         hotspot.setAttribute('aria-label', `Foco ${item.country}`);
-        hotspot.innerHTML = `<span class="hotspot-ring"></span><span class="hotspot-label">${item.country}</span>`;
+        hotspot.innerHTML = `<span class="hotspot-ring"></span><span class="hotspot-label"><span class="hotspot-icon">${icon}</span>${item.country}</span>`;
         hotspot.addEventListener('click', () => setFocus(item.country));
         hotspotLayer.appendChild(hotspot);
       });
@@ -1403,12 +1556,13 @@
       riskGrid.innerHTML = '';
 
       filtered.forEach(item => {
+        const icon = THREAT_ICONS[item.type] || '';
         const row = document.createElement('div');
         row.className = 'list-row';
         row.id = `risk-${slugify(item.country)}`;
         row.innerHTML = `
           <div class="list-row-top">
-            <strong>${item.country}</strong>
+            <strong>${icon ? icon + ' ' : ''}${item.country}</strong>
             <span class="severity ${item.severityClass}">${item.level}</span>
           </div>
           <p>${item.news} noticias · ${item.intel} señales intel · ${item.note}</p>
@@ -1465,8 +1619,8 @@
       document.querySelectorAll('.map-btn').forEach(btn => btn.classList.toggle('active', btn.dataset.mode === mode));
       mapStatusBadge.textContent = `Vista ${mode}`;
       mapState.textContent = mode === '3D'
-        ? 'Cobertura activa: globo 3D conceptual con corredores, teatros y nodos críticos.'
-        : 'Cobertura activa: conflictos, rutas energéticas y presión diplomática.';
+        ? 'Cobertura activa: globo 3D · conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.'
+        : 'Cobertura activa: conflicto bélico ⚔, político 🏛, pandemia 🦠, catástrofe 🌪 y pobreza 💸.';
     }
 
     function runCommand() {

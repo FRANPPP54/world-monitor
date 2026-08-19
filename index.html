@@ -1058,6 +1058,7 @@
         grid-template-columns: 1fr;
       }
       .command-row { grid-template-columns: 1fr; }
+      .world-stage { aspect-ratio: 1.35 / 1; }
       .map-hud {
         position: static;
         width: 100%;
@@ -1067,6 +1068,12 @@
         position: static;
         padding: 20px 20px 0;
       }
+      .focus-strip,
+      .map-legend { display: none; }
+      .marker-storm-label,
+      .marker-storm-kts,
+      .iceberg-label,
+      .iceberg-area { display: none; }
     }
 
     @media (max-width: 560px) {

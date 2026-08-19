@@ -943,7 +943,7 @@
       </div>
     </section>
 
-    <section class="kpi-grid" id="alertsSection"></section>
+    <section class="kpi-grid" id="scoreSection"></section>
 
     <section class="lower-grid">
       <div class="feed-grid">
@@ -1008,7 +1008,7 @@
           </div>
         </section>
 
-        <section class="panel">
+        <section class="panel" id="alertsSection">
           <div class="panel-head">
             <h2>Alertas críticas</h2>
             <span class="mini-badge" id="alertCount">0 abiertas</span>
@@ -1174,7 +1174,7 @@
     const focusStrip = document.getElementById('focusStrip');
     const metricGrid = document.getElementById('metricGrid');
     const sourceList = document.getElementById('sourceList');
-    const alertsSection = document.getElementById('alertsSection');
+    const scoreSection = document.getElementById('scoreSection');
     const topicTabs = document.getElementById('topicTabs');
     const riskGrid = document.getElementById('riskGrid');
     const riskCount = document.getElementById('riskCount');
@@ -1226,7 +1226,12 @@
 
     function scrollToSection(sectionId) {
       const target = document.getElementById(sectionId);
-      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (sectionId === 'commandCenter') {
+          setTimeout(() => commandInput.focus(), 250);
+        }
+      }
     }
 
     function setBottomNav(sectionId) {
@@ -1265,6 +1270,7 @@
         const hotspot = document.createElement('button');
         hotspot.type = 'button';
         hotspot.className = `hotspot ${item.severityClass}`;
+        hotspot.dataset.country = item.country;
         hotspot.style.left = `${item.coords.x}%`;
         hotspot.style.top = `${item.coords.y}%`;
         hotspot.setAttribute('aria-label', `Foco ${item.country}`);
@@ -1319,7 +1325,7 @@
     }
 
     function renderAlertCards() {
-      alertsSection.innerHTML = '';
+      scoreSection.innerHTML = '';
       alertCards.forEach(item => {
         const card = document.createElement('section');
         card.className = 'panel';
@@ -1333,7 +1339,7 @@
             </div>
           </div>
         `;
-        alertsSection.appendChild(card);
+        scoreSection.appendChild(card);
       });
     }
 
@@ -1433,7 +1439,7 @@
       });
 
       const selected = Array.from(document.querySelectorAll('.hotspot')).find(node =>
-        normalizeCommand(node.textContent).includes(normalizeCommand(item.country))
+        normalizeCommand(node.dataset.country || '') === normalizeCommand(item.country)
       );
       if (selected) {
         const label = selected.querySelector('.hotspot-label');

@@ -1,4 +1,4 @@
-import { BaseModule } from './BaseModule.js';
+import { BaseModule } from '../../BaseModule.js';
 
 export class DisastersModule extends BaseModule {
   constructor() {

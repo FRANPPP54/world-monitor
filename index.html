@@ -1377,6 +1377,7 @@
     }
     .sig-chip.vol   { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
     .sig-chip.fund  { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.4);  color: #fdba74; }
+    .sig-chip.gap   { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4);  color: #d8b4fe; }
     .sig-chip.oi    { background: rgba(239,68,68,0.15);  border-color: rgba(239,68,68,0.4);   color: #fca5a5; }
     .sig-chip.liq   { background: rgba(250,204,21,0.12); border-color: rgba(250,204,21,0.4);  color: #fde047; }
     .sig-chip.ok    { background: rgba(34,197,94,0.1);   border-color: rgba(34,197,94,0.3);   color: #86efac; }
@@ -2727,6 +2728,7 @@
         signalHeading: 'Funding 8h',
         signalFilterCode: 'FUND',
         signalFilterKey: 'fund',
+        signalChipClass: 'fund',
         interestHeading: 'OI / MktCap',
         emptyLabel: 'No hay tokens que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar API Binance/Bybit/OKX)',
@@ -2806,12 +2808,13 @@
         signalHeading: 'Gap Open',
         signalFilterCode: 'GAP',
         signalFilterKey: 'gap',
+        signalChipClass: 'gap',
         interestHeading: 'OI Opc.',
         emptyLabel: 'No hay acciones que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar feeds NYSE/NASDAQ y opciones)',
         conditions: [
           { chip: 'vol', code: 'VOL', title: 'Pico de Volumen', desc: 'Volumen intradía > MA20 × 3.0 y precio sosteniéndose cerca del máximo.' },
-          { chip: 'fund', code: 'GAP', title: 'Gap de Apertura', desc: 'Gap alcista > 1.8 % frente al cierre previo. Presión direccional fuerte.' },
+          { chip: 'gap', code: 'GAP', title: 'Gap de Apertura', desc: 'Gap alcista > 1.8 % frente al cierre previo. Presión direccional fuerte.' },
           { chip: 'oi', code: 'OI', title: 'Opciones Activas', desc: 'Open interest relativo > 12 %. Flujo especulativo elevado.' },
           { chip: 'liq', code: 'LIQ', title: 'Exceso de Short Cover', desc: 'La presión de coberturas se enfría >65 % tras un pico reciente.' }
         ],
@@ -2964,6 +2967,9 @@
       document.querySelectorAll('[data-market-mode]').forEach(button => {
         button.classList.toggle('active', button.dataset.marketMode === activeScannerMarket);
       });
+      document.querySelectorAll('[data-scan-filter]').forEach(button => {
+        button.classList.toggle('active', button.dataset.scanFilter === scannerFilter);
+      });
     }
 
     function formatPrice(p) {
@@ -3007,7 +3013,7 @@
 
         const chips = [];
         if (row.condVol)        chips.push('<span class="sig-chip vol">VOL ×' + row.volRatio.toFixed(1) + '</span>');
-        if (row.condSignal)     chips.push('<span class="sig-chip fund">' + config.formatSignalChip(row.signalValue) + '</span>');
+        if (row.condSignal)     chips.push('<span class="sig-chip ' + config.signalChipClass + '">' + config.formatSignalChip(row.signalValue) + '</span>');
         if (row.condInterest)   chips.push('<span class="sig-chip oi">OI ' + config.formatInterestValue(row.interestValue) + '</span>');
         if (row.exhaustion)     chips.push('<span class="sig-chip liq">LIQ↓</span>');
         if (!chips.length)      chips.push('<span class="sig-chip ok">OK</span>');
@@ -3085,11 +3091,8 @@
     document.querySelectorAll('[data-market-mode]').forEach(button => {
       button.addEventListener('click', () => {
         if (button.dataset.marketMode === activeScannerMarket) return;
-        const previousSignalKey = QUANT_MARKETS[activeScannerMarket].signalFilterKey;
         activeScannerMarket = button.dataset.marketMode;
-        if (scannerFilter === previousSignalKey) {
-          scannerFilter = QUANT_MARKETS[activeScannerMarket].signalFilterKey;
-        }
+        scannerFilter = 'all';
         runScanner();
       });
     });

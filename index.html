@@ -1250,6 +1250,32 @@
     .scanner-legend-dot {
       width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
     }
+    .scanner-market-switch {
+      display: inline-flex;
+      gap: 8px;
+      margin-bottom: 14px;
+      padding: 6px;
+      border: 1px solid var(--line-subtle);
+      border-radius: 14px;
+      background: rgba(8, 16, 28, 0.7);
+    }
+    .scanner-market-btn {
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      border-radius: 10px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: 0.2s ease;
+    }
+    .scanner-market-btn.active,
+    .scanner-market-btn:hover {
+      color: var(--text);
+      border-color: rgba(96, 165, 250, 0.35);
+      background: rgba(59, 130, 246, 0.14);
+    }
     .scanner-table {
       width: 100%;
       border-collapse: collapse;
@@ -1328,6 +1354,7 @@
     .scanner-bar-fill.warn   { background: var(--watch); }
     .scanner-bar-fill.alert  { background: var(--elevated); }
     .scanner-bar-fill.crit   { background: var(--critical); }
+    .scanner-bar-fill.neg    { background: var(--accent-2); }
     .scanner-bar-val {
       font-size: 11px;
       font-variant-numeric: tabular-nums;
@@ -1350,6 +1377,7 @@
     }
     .sig-chip.vol   { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
     .sig-chip.fund  { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.4);  color: #fdba74; }
+    .sig-chip.gap   { background: rgba(168,85,247,0.15); border-color: rgba(168,85,247,0.4);  color: #d8b4fe; }
     .sig-chip.oi    { background: rgba(239,68,68,0.15);  border-color: rgba(239,68,68,0.4);   color: #fca5a5; }
     .sig-chip.liq   { background: rgba(250,204,21,0.12); border-color: rgba(250,204,21,0.4);  color: #fde047; }
     .sig-chip.ok    { background: rgba(34,197,94,0.1);   border-color: rgba(34,197,94,0.3);   color: #86efac; }
@@ -1442,7 +1470,7 @@
               <button class="nav-btn" data-target="alertsSection">Alertas prioritarias <span>Clasificación por severidad y ventana de impacto.</span></button>
               <button class="nav-btn" data-target="insightSection">Brief de IA <span>Síntesis ejecutiva con convergencia de señales.</span></button>
               <button class="nav-btn" data-target="liveSection">Canales en vivo <span>Feeds internacionales para validación visual.</span></button>
-              <button class="nav-btn" data-target="derivativesSection">Escáner de Derivados <span>Funding rate, OI, volumen y liquidaciones en futuros.</span></button>
+              <button class="nav-btn" data-target="derivativesSection">Quant <span>Escáner con cambio entre Crypto y Bolsa.</span></button>
             </div>
           </div>
         </section>
@@ -1624,33 +1652,20 @@
 
         <section class="panel" id="derivativesSection">
           <div class="panel-head">
-            <h2>Escáner de Derivados</h2>
-            <span class="mini-badge" id="scannerBadge">0 alertas</span>
+            <h2>Quant</h2>
+            <span class="mini-badge" id="scannerBadge">Crypto · 0 alertas</span>
           </div>
           <div class="panel-body">
-            <div class="scanner-condition-legend">
-              <div class="scanner-cond-card">
-                <div class="cond-title"><span class="sig-chip vol">VOL</span> Vela de Volumen</div>
-                <div class="cond-desc">Volumen de la vela &gt; MA20 × 3.5 y cierre cerca del máximo (&gt;80 %).</div>
-              </div>
-              <div class="scanner-cond-card">
-                <div class="cond-title"><span class="sig-chip fund">FUND</span> Funding Rate</div>
-                <div class="cond-desc">Tasa 8 h &gt; 0.1 % (&gt;100 % anualizado). Longs insostenibles.</div>
-              </div>
-              <div class="scanner-cond-card">
-                <div class="cond-title"><span class="sig-chip oi">OI</span> Interés Abierto</div>
-                <div class="cond-desc">OI / MarketCap Spot &gt; 15 %. Mercado sobreapantallado.</div>
-              </div>
-              <div class="scanner-cond-card">
-                <div class="cond-title"><span class="sig-chip liq">LIQ</span> Agotamiento Cortos</div>
-                <div class="cond-desc">Liquidaciones de cortos caen &gt;70 % tras pico. Subida sin combustible.</div>
-              </div>
+            <div class="scanner-market-switch" id="scannerMarketSwitch" aria-label="Selector de mercado Quant">
+              <button class="scanner-market-btn active" data-market-mode="crypto">Crypto</button>
+              <button class="scanner-market-btn" data-market-mode="stocks">Bolsa</button>
             </div>
+            <div class="scanner-condition-legend" id="scannerConditionLegend"></div>
             <div class="scanner-toolbar">
               <button class="scanner-filter-btn active" data-scan-filter="all">Todos</button>
               <button class="scanner-filter-btn" data-scan-filter="critical">Críticos (&ge;3)</button>
               <button class="scanner-filter-btn" data-scan-filter="vol">VOL</button>
-              <button class="scanner-filter-btn" data-scan-filter="fund">FUND</button>
+              <button class="scanner-filter-btn" data-scan-filter="signal" id="scannerSignalFilterBtn">FUND</button>
               <button class="scanner-filter-btn" data-scan-filter="oi">OI</button>
               <div class="scanner-legend">
                 <span><span class="scanner-legend-dot" style="background:var(--critical)"></span>Crítico</span>
@@ -1663,11 +1678,11 @@
               <table class="scanner-table">
                 <thead>
                   <tr>
-                    <th>Token</th>
+                    <th id="scannerAssetHeading">Token</th>
                     <th>Precio</th>
-                    <th>Vol / MA20</th>
-                    <th>Funding 8h</th>
-                    <th>OI / MktCap</th>
+                    <th id="scannerVolumeHeading">Vol / MA20</th>
+                    <th id="scannerSignalHeading">Funding 8h</th>
+                    <th id="scannerInterestHeading">OI / MktCap</th>
                     <th>Señales</th>
                     <th>Riesgo</th>
                   </tr>
@@ -2687,25 +2702,180 @@
     setFocus(activeCountry);
     initTacticalMap();
 
-    // ── Derivatives Scanner ───────────────────────────────────────────────
-    // Mock token data. In a real deployment replace generateScannerData() with
-    // live REST/WebSocket calls to Binance/Bybit/OKX public endpoints.
+    // ── Quant Scanner ─────────────────────────────────────────────────────
+    const QUANT_MARKETS = {
+      crypto: {
+        label: 'Crypto',
+        badgeLabel: 'Crypto',
+        assetHeading: 'Token',
+        signalHeading: 'Funding 8h',
+        signalFilterCode: 'FUND',
+        signalChipClass: 'fund',
+        interestHeading: 'OI / MktCap',
+        interestFilterCode: 'OI',
+        emptyLabel: 'No hay tokens que cumplan el filtro seleccionado.',
+        updateLabel: 'Datos simulados (integrar API Binance/Bybit/OKX)',
+        conditions: [
+          { chip: 'vol', code: 'VOL', title: 'Vela de Volumen', desc: 'Volumen de la vela > MA20 × 3.5 y cierre cerca del máximo (>80 %).' },
+          { chip: 'fund', code: 'FUND', title: 'Funding Rate', desc: 'Tasa 8 h > 0.1 % (>100 % anualizado). Longs insostenibles.' },
+          { chip: 'oi', code: 'OI', title: 'Interés Abierto', desc: 'OI / MarketCap Spot > 15 %. Mercado sobreapalancado.' },
+          { chip: 'liq', code: 'LIQ', title: 'Agotamiento Cortos', desc: 'Liquidaciones de cortos caen >70 % tras pico. Subida sin combustible.' }
+        ],
+        assets: [
+          { symbol: 'BTC',  exchange: 'Binance', basePrice: 67800 },
+          { symbol: 'ETH',  exchange: 'Binance', basePrice: 3540  },
+          { symbol: 'SOL',  exchange: 'Bybit',   basePrice: 172   },
+          { symbol: 'BNB',  exchange: 'Binance', basePrice: 605   },
+          { symbol: 'ARB',  exchange: 'Bybit',   basePrice: 1.14  },
+          { symbol: 'DOGE', exchange: 'OKX',     basePrice: 0.162 },
+          { symbol: 'AVAX', exchange: 'Binance', basePrice: 39.4  },
+          { symbol: 'INJ',  exchange: 'OKX',     basePrice: 32.8  }
+        ],
+        buildRow(asset, history) {
+          const price        = randAround(asset.basePrice, 0.015);
+          const change24h    = Math.random() * 10 - 5;
+          const volActual    = randAround(1_000_000, 0.8);
+          const vMA20        = randAround(280_000, 0.3);
+          const volRatio     = volActual / vMA20;
+          const closeFromLow = Math.random();
+          const signalValue  = Math.random() * 0.25 - 0.02;
+          const marketCap    = asset.basePrice * randAround(1e9, 0.05);
+          const interestValue = randAround(marketCap * 0.12, 0.5) / marketCap;
+          history.push(Math.random() * 900 + 50);
+          if (history.length > 10) history.shift();
+          const peak = Math.max(...history.slice(-5));
+          const last = history[history.length - 1];
 
-    const SCANNER_TOKENS = [
-      { symbol: 'BTC',  exchange: 'Binance', basePrice: 67800 },
-      { symbol: 'ETH',  exchange: 'Binance', basePrice: 3540  },
-      { symbol: 'SOL',  exchange: 'Bybit',   basePrice: 172   },
-      { symbol: 'BNB',  exchange: 'Binance', basePrice: 605   },
-      { symbol: 'ARB',  exchange: 'Bybit',   basePrice: 1.14  },
-      { symbol: 'DOGE', exchange: 'OKX',     basePrice: 0.162 },
-      { symbol: 'AVAX', exchange: 'Binance', basePrice: 39.4  },
-      { symbol: 'INJ',  exchange: 'OKX',     basePrice: 32.8  }
-    ];
+          return {
+            symbol: asset.symbol,
+            exchange: asset.exchange,
+            price,
+            change24h,
+            volRatio,
+            signalValue,
+            interestValue,
+            exhaustion: peak > 600 && last < peak * 0.30,
+            condVol: volRatio > 3.5 && closeFromLow > 0.80,
+            condSignal: signalValue > 0.10,
+            condInterest: interestValue > 0.15
+          };
+        },
+        formatSignalValue(value) {
+          return `${value.toFixed(3)}%`;
+        },
+        formatSignalChip(value) {
+          return `FUND ${value.toFixed(3)}%`;
+        },
+        formatInterestValue(value) {
+          return `${(value * 100).toFixed(1)}%`;
+        },
+        getSignalBarPct(value) {
+          if (value < 0) return Math.min(Math.abs(value) / 0.02, 1) * 100;
+          return Math.min(value / 0.25, 1) * 100;
+        },
+        getSignalBarClass(value) {
+          if (value < 0) return 'neg';
+          return barClass(value, [0.04, 0.07, 0.10]);
+        },
+        getInterestBarPct(value) {
+          return Math.min(value / 0.30, 1) * 100;
+        },
+        getInterestBarClass(value) {
+          return barClass(value, [0.07, 0.11, 0.15]);
+        }
+      },
+      stocks: {
+        label: 'Bolsa',
+        badgeLabel: 'Bolsa',
+        assetHeading: 'Acción',
+        signalHeading: 'Gap Open',
+        signalFilterCode: 'GAP',
+        signalChipClass: 'gap',
+        interestHeading: 'OI Opc.',
+        interestFilterCode: 'OI',
+        emptyLabel: 'No hay acciones que cumplan el filtro seleccionado.',
+        updateLabel: 'Datos simulados (integrar feeds NYSE/NASDAQ y opciones)',
+        conditions: [
+          { chip: 'vol', code: 'VOL', title: 'Pico de Volumen', desc: 'Volumen intradía > MA20 × 3.0 y precio sosteniéndose cerca del máximo.' },
+          { chip: 'gap', code: 'GAP', title: 'Gap de Apertura', desc: 'Gap alcista > 1.8 % frente al cierre previo. Presión direccional fuerte.' },
+          { chip: 'oi', code: 'OI', title: 'Opciones Activas', desc: 'Open interest relativo > 12 %. Flujo especulativo elevado.' },
+          { chip: 'liq', code: 'LIQ', title: 'Exceso de Short Cover', desc: 'La presión de coberturas se enfría >65 % tras un pico reciente.' }
+        ],
+        assets: [
+          { symbol: 'AAPL', exchange: 'NASDAQ', basePrice: 223 },
+          { symbol: 'MSFT', exchange: 'NASDAQ', basePrice: 438 },
+          { symbol: 'NVDA', exchange: 'NASDAQ', basePrice: 127 },
+          { symbol: 'AMZN', exchange: 'NASDAQ', basePrice: 184 },
+          { symbol: 'META', exchange: 'NASDAQ', basePrice: 514 },
+          { symbol: 'TSLA', exchange: 'NASDAQ', basePrice: 218 },
+          { symbol: 'JPM',  exchange: 'NYSE',   basePrice: 209 },
+          { symbol: 'XOM',  exchange: 'NYSE',   basePrice: 117 }
+        ],
+        buildRow(asset, history) {
+          const price         = randAround(asset.basePrice, 0.012);
+          const change24h     = Math.random() * 8 - 4;
+          const volActual     = randAround(22_000_000, 0.65);
+          const vMA20         = randAround(7_000_000, 0.35);
+          const volRatio      = volActual / vMA20;
+          const closeFromLow  = Math.random();
+          const signalValue   = Math.random() * 4.5 - 1.2;
+          const optionsMarketBase = randAround(asset.basePrice * 12_000_000 + 200_000_000, 0.45);
+          const optionsOpenInterest = randAround(asset.basePrice * 1_800_000 + 28_000_000, 0.55);
+          const interestValue = optionsOpenInterest / optionsMarketBase;
+          history.push(Math.random() * 750 + 40);
+          if (history.length > 10) history.shift();
+          const peak = Math.max(...history.slice(-5));
+          const last = history[history.length - 1];
 
-    // Simulated per-token liquidation history (last 10 ticks, values in USD k)
-    let scannerLiqHistory = {};
-    SCANNER_TOKENS.forEach(t => {
-      scannerLiqHistory[t.symbol] = Array.from({ length: 10 }, () => Math.random() * 800 + 100);
+          return {
+            symbol: asset.symbol,
+            exchange: asset.exchange,
+            price,
+            change24h,
+            volRatio,
+            signalValue,
+            interestValue,
+            exhaustion: peak > 500 && last < peak * 0.35,
+            condVol: volRatio > 3.0 && closeFromLow > 0.75,
+            condSignal: signalValue > 1.8,
+            condInterest: interestValue > 0.12
+          };
+        },
+        formatSignalValue(value) {
+          const sign = value >= 0 ? '+' : '';
+          return `${sign}${value.toFixed(2)}%`;
+        },
+        formatSignalChip(value) {
+          const sign = value >= 0 ? '+' : '';
+          return `GAP ${sign}${value.toFixed(2)}%`;
+        },
+        formatInterestValue(value) {
+          return `${(value * 100).toFixed(1)}%`;
+        },
+        getSignalBarPct(value) {
+          return Math.min(Math.max(value, 0) / 4, 1) * 100;
+        },
+        getSignalBarClass(value) {
+          if (value < 0) return 'neg';
+          return barClass(value, [0.8, 1.3, 1.8]);
+        },
+        getInterestBarPct(value) {
+          return Math.min(value / 0.20, 1) * 100;
+        },
+        getInterestBarClass(value) {
+          return barClass(value, [0.06, 0.09, 0.12]);
+        }
+      }
+    };
+
+    const SCANNER_FILTER_KEYS = ['all', 'critical', 'vol', 'signal', 'oi'];
+    let activeScannerMarket = 'crypto';
+    const scannerHistory = {};
+    Object.entries(QUANT_MARKETS).forEach(([mode, config]) => {
+      scannerHistory[mode] = {};
+      config.assets.forEach(asset => {
+        scannerHistory[mode][asset.symbol] = Array.from({ length: 10 }, () => Math.random() * 800 + 100);
+      });
     });
 
     /**
@@ -2716,51 +2886,9 @@
       return base * (1 + (Math.random() * 2 - 1) * devFraction);
     }
 
-    /**
-     * Produces a simulated market snapshot for all tokens.
-     * Replace this function body with real API calls to get live data.
-     */
     function generateScannerData() {
-      return SCANNER_TOKENS.map(t => {
-        const price        = randAround(t.basePrice, 0.015);
-        const change24h    = (Math.random() * 10 - 5);          // –5 % to +5 %
-        const volActual    = randAround(1_000_000, 0.8);         // current candle vol (USD)
-        const vMA20        = randAround(280_000, 0.3);           // 20-candle avg vol (USD)
-        const volRatio     = volActual / vMA20;                  // Cond 1 numerator/denominator
-        const highLow      = randAround(t.basePrice * 0.012, 0.4); // candle range
-        const closeFromLow = Math.random();                      // 0=closed at low, 1=at high
-        const funding8h    = (Math.random() * 0.25 - 0.02);     // –0.02 % to +0.23 %
-        const marketCap    = t.basePrice * randAround(1e9, 0.05); // rough spot MktCap USD
-        const openInterest = randAround(marketCap * 0.12, 0.5);  // OI USD
-        const oiRatio      = openInterest / marketCap;           // Cond 3
-
-        // Liquidation history: push new tick, shift old one off
-        const liqHist = scannerLiqHistory[t.symbol];
-        liqHist.push(Math.random() * 900 + 50);
-        if (liqHist.length > 10) liqHist.shift();
-
-        // Cond 4: detect short-liquidation exhaustion
-        // Peak = max of last 5 ticks; last tick < peak * 0.3 → exhaustion signal
-        const peak = Math.max(...liqHist.slice(-5));
-        const last = liqHist[liqHist.length - 1];
-        const liqExhaustion = peak > 600 && last < peak * 0.30;
-
-        return {
-          symbol:         t.symbol,
-          exchange:       t.exchange,
-          price,
-          change24h,
-          volRatio,
-          closeFromLow,
-          funding8h,
-          oiRatio,
-          liqExhaustion,
-          // derived booleans
-          condVol:  volRatio > 3.5 && closeFromLow > 0.80,
-          condFund: funding8h > 0.10,
-          condOI:   oiRatio  > 0.15
-        };
-      });
+      const config = QUANT_MARKETS[activeScannerMarket];
+      return config.assets.map(asset => config.buildRow(asset, scannerHistory[activeScannerMarket][asset.symbol]));
     }
 
     /**
@@ -2768,7 +2896,7 @@
      * based on how many conditions fire.
      */
     function riskLevel(row) {
-      const count = [row.condVol, row.condFund, row.condOI, row.liqExhaustion]
+      const count = [row.condVol, row.condSignal, row.condInterest, row.exhaustion]
                       .filter(Boolean).length;
       if (count === 0) return { cls: 'ok',   score: 0, label: 'Normal' };
       if (count === 1) return { cls: 'warn', score: 1, label: 'Vigilancia' };
@@ -2784,10 +2912,54 @@
     }
 
     let scannerFilter = 'all';
+    const scannerConditionLegend = document.getElementById('scannerConditionLegend');
+    const scannerAssetHeading = document.getElementById('scannerAssetHeading');
+    const scannerSignalHeading = document.getElementById('scannerSignalHeading');
+    const scannerInterestHeading = document.getElementById('scannerInterestHeading');
+    const scannerSignalFilterBtn = document.getElementById('scannerSignalFilterBtn');
+    const scannerInterestFilterBtn = document.querySelector('[data-scan-filter="oi"]');
     const scannerTableBody  = document.getElementById('scannerTableBody');
     const scannerBadge      = document.getElementById('scannerBadge');
     const scannerEmpty      = document.getElementById('scannerEmpty');
     const scannerLastUpdate = document.getElementById('scannerLastUpdate');
+
+    function renderScannerMeta() {
+      const config = QUANT_MARKETS[activeScannerMarket];
+      const validFilters = new Set(SCANNER_FILTER_KEYS);
+      if (!validFilters.has(scannerFilter)) scannerFilter = 'all';
+      scannerAssetHeading.textContent = config.assetHeading;
+      scannerSignalHeading.textContent = config.signalHeading;
+      scannerInterestHeading.textContent = config.interestHeading;
+      scannerSignalFilterBtn.textContent = config.signalFilterCode;
+      scannerInterestFilterBtn.textContent = config.interestFilterCode;
+      scannerEmpty.textContent = config.emptyLabel;
+      scannerConditionLegend.replaceChildren(...config.conditions.map(condition => {
+        const card = document.createElement('div');
+        card.className = 'scanner-cond-card';
+
+        const title = document.createElement('div');
+        title.className = 'cond-title';
+
+        const chip = document.createElement('span');
+        chip.className = `sig-chip ${condition.chip}`;
+        chip.textContent = condition.code;
+
+        title.append(chip, document.createTextNode(` ${condition.title}`));
+
+        const desc = document.createElement('div');
+        desc.className = 'cond-desc';
+        desc.textContent = condition.desc;
+
+        card.append(title, desc);
+        return card;
+      }));
+      document.querySelectorAll('[data-market-mode]').forEach(button => {
+        button.classList.toggle('active', button.dataset.marketMode === activeScannerMarket);
+      });
+      document.querySelectorAll('[data-scan-filter]').forEach(button => {
+        button.classList.toggle('active', button.dataset.scanFilter === scannerFilter);
+      });
+    }
 
     function formatPrice(p) {
       if (p >= 1000)  return p.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -2796,14 +2968,15 @@
     }
 
     function renderScannerTable(data) {
+      const config = QUANT_MARKETS[activeScannerMarket];
       let filtered = data;
       if (scannerFilter === 'critical') filtered = data.filter(r => riskLevel(r).score >= 3);
       else if (scannerFilter === 'vol')  filtered = data.filter(r => r.condVol);
-      else if (scannerFilter === 'fund') filtered = data.filter(r => r.condFund);
-      else if (scannerFilter === 'oi')   filtered = data.filter(r => r.condOI);
+      else if (scannerFilter === 'signal') filtered = data.filter(r => r.condSignal);
+      else if (scannerFilter === 'oi')   filtered = data.filter(r => r.condInterest);
 
       const alertCount = data.filter(r => riskLevel(r).score >= 2).length;
-      scannerBadge.textContent = `${alertCount} alerta${alertCount !== 1 ? 's' : ''}`;
+      scannerBadge.textContent = `${config.badgeLabel} · ${alertCount} alerta${alertCount !== 1 ? 's' : ''}`;
 
       if (!filtered.length) {
         scannerTableBody.innerHTML = '';
@@ -2819,18 +2992,18 @@
         const risk    = riskLevel(row);
         const volPct  = Math.min(row.volRatio / 7, 1) * 100;
         const volCls  = barClass(row.volRatio, [1.5, 2.5, 3.5]);
-        const fundPct = Math.min(Math.max(row.funding8h, 0) / 0.25, 1) * 100;
-        const fundCls = barClass(row.funding8h, [0.04, 0.07, 0.10]);
-        const oiPct   = Math.min(row.oiRatio / 0.30, 1) * 100;
-        const oiCls   = barClass(row.oiRatio, [0.07, 0.11, 0.15]);
+        const signalPct = config.getSignalBarPct(row.signalValue);
+        const signalCls = config.getSignalBarClass(row.signalValue);
+        const interestPct = config.getInterestBarPct(row.interestValue);
+        const interestCls = config.getInterestBarClass(row.interestValue);
         const changeCls = row.change24h >= 0 ? 'up' : 'down';
         const changeSign = row.change24h >= 0 ? '+' : '';
 
         const chips = [];
         if (row.condVol)        chips.push('<span class="sig-chip vol">VOL ×' + row.volRatio.toFixed(1) + '</span>');
-        if (row.condFund)       chips.push('<span class="sig-chip fund">FUND ' + row.funding8h.toFixed(3) + '%</span>');
-        if (row.condOI)         chips.push('<span class="sig-chip oi">OI ' + (row.oiRatio * 100).toFixed(1) + '%</span>');
-        if (row.liqExhaustion)  chips.push('<span class="sig-chip liq">LIQ↓</span>');
+        if (row.condSignal)     chips.push('<span class="sig-chip ' + config.signalChipClass + '">' + config.formatSignalChip(row.signalValue) + '</span>');
+        if (row.condInterest)   chips.push('<span class="sig-chip oi">OI ' + config.formatInterestValue(row.interestValue) + '</span>');
+        if (row.exhaustion)     chips.push('<span class="sig-chip liq">LIQ↓</span>');
         if (!chips.length)      chips.push('<span class="sig-chip ok">OK</span>');
 
         return `<tr>
@@ -2858,17 +3031,17 @@
           <td>
             <div class="scanner-bar-wrap">
               <div class="scanner-bar-bg">
-                <div class="scanner-bar-fill ${fundCls}" style="width:${fundPct.toFixed(1)}%"></div>
+                <div class="scanner-bar-fill ${signalCls}" style="width:${signalPct.toFixed(1)}%"></div>
               </div>
-              <span class="scanner-bar-val">${row.funding8h.toFixed(3)}%</span>
+              <span class="scanner-bar-val">${config.formatSignalValue(row.signalValue)}</span>
             </div>
           </td>
           <td>
             <div class="scanner-bar-wrap">
               <div class="scanner-bar-bg">
-                <div class="scanner-bar-fill ${oiCls}" style="width:${oiPct.toFixed(1)}%"></div>
+                <div class="scanner-bar-fill ${interestCls}" style="width:${interestPct.toFixed(1)}%"></div>
               </div>
-              <span class="scanner-bar-val">${(row.oiRatio * 100).toFixed(1)}%</span>
+              <span class="scanner-bar-val">${config.formatInterestValue(row.interestValue)}</span>
             </div>
           </td>
           <td>
@@ -2885,10 +3058,11 @@
 
       const now = new Date();
       scannerLastUpdate.textContent =
-        `Última actualización: ${now.toLocaleTimeString('es-ES')} · Datos simulados (integrar API Binance/Bybit/OKX)`;
+        `Última actualización: ${now.toLocaleTimeString('es-ES')} · ${config.updateLabel}`;
     }
 
     function runScanner() {
+      renderScannerMeta();
       renderScannerTable(generateScannerData());
     }
 
@@ -2898,6 +3072,15 @@
         scannerFilter = btn.dataset.scanFilter;
         document.querySelectorAll('[data-scan-filter]').forEach(b =>
           b.classList.toggle('active', b.dataset.scanFilter === scannerFilter));
+        runScanner();
+      });
+    });
+
+    document.querySelectorAll('[data-market-mode]').forEach(button => {
+      button.addEventListener('click', () => {
+        if (button.dataset.marketMode === activeScannerMarket) return;
+        activeScannerMarket = button.dataset.marketMode;
+        scannerFilter = 'all';
         runScanner();
       });
     });

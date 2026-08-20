@@ -1210,6 +1210,201 @@
       .alert-row { grid-template-columns: 1fr; }
       .source-row { align-items: flex-start; flex-direction: column; }
       #mapState { display: none; }
+      .scanner-table { font-size: 11px; }
+      .scanner-signals { gap: 4px; }
+    }
+
+    /* ── Derivatives Scanner ─────────────────────────────────────── */
+    .scanner-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .scanner-filter-btn {
+      background: rgba(15, 29, 52, 0.8);
+      border: 1px solid var(--line-strong);
+      border-radius: 20px;
+      color: var(--muted);
+      font-size: 12px;
+      padding: 5px 14px;
+      cursor: pointer;
+      transition: border-color 0.2s, color 0.2s, background 0.2s;
+    }
+    .scanner-filter-btn.active,
+    .scanner-filter-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent-2);
+      background: rgba(59, 130, 246, 0.12);
+    }
+    .scanner-legend {
+      margin-left: auto;
+      display: flex;
+      gap: 12px;
+      font-size: 11px;
+      color: var(--muted);
+      flex-wrap: wrap;
+    }
+    .scanner-legend span { display: flex; align-items: center; gap: 5px; }
+    .scanner-legend-dot {
+      width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+    }
+    .scanner-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+    }
+    .scanner-table th {
+      text-align: left;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: 6px 8px 10px;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+    .scanner-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid var(--line-subtle);
+      vertical-align: middle;
+    }
+    .scanner-table tr:last-child td { border-bottom: none; }
+    .scanner-table tr:hover td { background: rgba(59, 130, 246, 0.04); }
+    .scanner-token {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+    }
+    .scanner-token-icon {
+      width: 26px; height: 26px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--accent), var(--accent-2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 10px; font-weight: 700; flex-shrink: 0;
+      color: #fff;
+    }
+    .scanner-exchange {
+      font-size: 10px;
+      color: var(--muted);
+      background: rgba(122, 153, 194, 0.1);
+      border-radius: 6px;
+      padding: 2px 6px;
+      margin-left: 4px;
+    }
+    .scanner-price {
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .scanner-change {
+      font-size: 11px;
+      margin-top: 2px;
+    }
+    .scanner-change.up { color: var(--ok); }
+    .scanner-change.down { color: var(--critical); }
+    .scanner-bar-wrap {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .scanner-bar-bg {
+      flex: 1;
+      height: 6px;
+      border-radius: 4px;
+      background: rgba(122, 153, 194, 0.12);
+      min-width: 60px;
+      position: relative;
+      overflow: hidden;
+    }
+    .scanner-bar-fill {
+      position: absolute; left: 0; top: 0; height: 100%;
+      border-radius: 4px;
+      transition: width 0.5s ease;
+    }
+    .scanner-bar-fill.normal { background: var(--ok); }
+    .scanner-bar-fill.warn   { background: var(--watch); }
+    .scanner-bar-fill.alert  { background: var(--elevated); }
+    .scanner-bar-fill.crit   { background: var(--critical); }
+    .scanner-bar-val {
+      font-size: 11px;
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+      min-width: 42px;
+    }
+    .scanner-signals {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+    .sig-chip {
+      font-size: 10px;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      letter-spacing: 0.03em;
+      white-space: nowrap;
+    }
+    .sig-chip.vol   { background: rgba(59,130,246,0.15); border-color: rgba(59,130,246,0.35); color: #93c5fd; }
+    .sig-chip.fund  { background: rgba(249,115,22,0.15); border-color: rgba(249,115,22,0.4);  color: #fdba74; }
+    .sig-chip.oi    { background: rgba(239,68,68,0.15);  border-color: rgba(239,68,68,0.4);   color: #fca5a5; }
+    .sig-chip.liq   { background: rgba(250,204,21,0.12); border-color: rgba(250,204,21,0.4);  color: #fde047; }
+    .sig-chip.ok    { background: rgba(34,197,94,0.1);   border-color: rgba(34,197,94,0.3);   color: #86efac; }
+    .scanner-score-cell {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .scanner-score-ring {
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 12px; font-weight: 700;
+      flex-shrink: 0;
+    }
+    .scanner-score-ring.ok   { background: rgba(34,197,94,0.15);  color: var(--ok);      border: 2px solid rgba(34,197,94,0.3); }
+    .scanner-score-ring.warn { background: rgba(250,204,21,0.15); color: var(--watch);   border: 2px solid rgba(250,204,21,0.3); }
+    .scanner-score-ring.high { background: rgba(249,115,22,0.15); color: var(--elevated);border: 2px solid rgba(249,115,22,0.3); }
+    .scanner-score-ring.crit { background: rgba(239,68,68,0.15);  color: var(--critical);border: 2px solid rgba(239,68,68,0.4); }
+    .scanner-score-label { font-size: 10px; color: var(--muted); line-height: 1.3; }
+    .scanner-empty {
+      text-align: center;
+      color: var(--muted);
+      padding: 32px 0;
+      font-size: 13px;
+    }
+    .scanner-last-update {
+      font-size: 11px;
+      color: var(--muted);
+      margin-top: 12px;
+      text-align: right;
+    }
+    .scanner-condition-legend {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 10px;
+      margin-bottom: 14px;
+    }
+    .scanner-cond-card {
+      background: rgba(10, 21, 37, 0.6);
+      border: 1px solid var(--line-subtle);
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-size: 11.5px;
+    }
+    .scanner-cond-card .cond-title {
+      font-weight: 600;
+      margin-bottom: 3px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .scanner-cond-card .cond-desc {
+      color: var(--muted);
+      line-height: 1.45;
     }
   </style>
 </head>
@@ -1247,6 +1442,7 @@
               <button class="nav-btn" data-target="alertsSection">Alertas prioritarias <span>Clasificación por severidad y ventana de impacto.</span></button>
               <button class="nav-btn" data-target="insightSection">Brief de IA <span>Síntesis ejecutiva con convergencia de señales.</span></button>
               <button class="nav-btn" data-target="liveSection">Canales en vivo <span>Feeds internacionales para validación visual.</span></button>
+              <button class="nav-btn" data-target="derivativesSection">Escáner de Derivados <span>Funding rate, OI, volumen y liquidaciones en futuros.</span></button>
             </div>
           </div>
         </section>
@@ -1423,6 +1619,64 @@
           </div>
           <div class="panel-body">
             <div class="alert-grid" id="alertGrid"></div>
+          </div>
+        </section>
+
+        <section class="panel" id="derivativesSection">
+          <div class="panel-head">
+            <h2>Escáner de Derivados</h2>
+            <span class="mini-badge" id="scannerBadge">0 alertas</span>
+          </div>
+          <div class="panel-body">
+            <div class="scanner-condition-legend">
+              <div class="scanner-cond-card">
+                <div class="cond-title"><span class="sig-chip vol">VOL</span> Vela de Volumen</div>
+                <div class="cond-desc">Volumen de la vela &gt; MA20 × 3.5 y cierre cerca del máximo (&gt;80 %).</div>
+              </div>
+              <div class="scanner-cond-card">
+                <div class="cond-title"><span class="sig-chip fund">FUND</span> Funding Rate</div>
+                <div class="cond-desc">Tasa 8 h &gt; 0.1 % (&gt;100 % anualizado). Longs insostenibles.</div>
+              </div>
+              <div class="scanner-cond-card">
+                <div class="cond-title"><span class="sig-chip oi">OI</span> Interés Abierto</div>
+                <div class="cond-desc">OI / MarketCap Spot &gt; 15 %. Mercado sobreapantallado.</div>
+              </div>
+              <div class="scanner-cond-card">
+                <div class="cond-title"><span class="sig-chip liq">LIQ</span> Agotamiento Cortos</div>
+                <div class="cond-desc">Liquidaciones de cortos caen &gt;70 % tras pico. Subida sin combustible.</div>
+              </div>
+            </div>
+            <div class="scanner-toolbar">
+              <button class="scanner-filter-btn active" data-scan-filter="all">Todos</button>
+              <button class="scanner-filter-btn" data-scan-filter="critical">Críticos (&ge;3)</button>
+              <button class="scanner-filter-btn" data-scan-filter="vol">VOL</button>
+              <button class="scanner-filter-btn" data-scan-filter="fund">FUND</button>
+              <button class="scanner-filter-btn" data-scan-filter="oi">OI</button>
+              <div class="scanner-legend">
+                <span><span class="scanner-legend-dot" style="background:var(--critical)"></span>Crítico</span>
+                <span><span class="scanner-legend-dot" style="background:var(--elevated)"></span>Alto</span>
+                <span><span class="scanner-legend-dot" style="background:var(--watch)"></span>Vigilancia</span>
+                <span><span class="scanner-legend-dot" style="background:var(--ok)"></span>Normal</span>
+              </div>
+            </div>
+            <div style="overflow-x:auto;">
+              <table class="scanner-table">
+                <thead>
+                  <tr>
+                    <th>Token</th>
+                    <th>Precio</th>
+                    <th>Vol / MA20</th>
+                    <th>Funding 8h</th>
+                    <th>OI / MktCap</th>
+                    <th>Señales</th>
+                    <th>Riesgo</th>
+                  </tr>
+                </thead>
+                <tbody id="scannerTableBody"></tbody>
+              </table>
+            </div>
+            <div class="scanner-empty hidden" id="scannerEmpty">No hay tokens que cumplan el filtro seleccionado.</div>
+            <div class="scanner-last-update" id="scannerLastUpdate">Actualizando…</div>
           </div>
         </section>
       </div>
@@ -2432,6 +2686,225 @@
     renderRisk();
     setFocus(activeCountry);
     initTacticalMap();
+
+    // ── Derivatives Scanner ───────────────────────────────────────────────
+    // Mock token data. In a real deployment replace generateScannerData() with
+    // live REST/WebSocket calls to Binance/Bybit/OKX public endpoints.
+
+    const SCANNER_TOKENS = [
+      { symbol: 'BTC',  exchange: 'Binance', basePrice: 67800 },
+      { symbol: 'ETH',  exchange: 'Binance', basePrice: 3540  },
+      { symbol: 'SOL',  exchange: 'Bybit',   basePrice: 172   },
+      { symbol: 'BNB',  exchange: 'Binance', basePrice: 605   },
+      { symbol: 'ARB',  exchange: 'Bybit',   basePrice: 1.14  },
+      { symbol: 'DOGE', exchange: 'OKX',     basePrice: 0.162 },
+      { symbol: 'AVAX', exchange: 'Binance', basePrice: 39.4  },
+      { symbol: 'INJ',  exchange: 'OKX',     basePrice: 32.8  }
+    ];
+
+    // Simulated per-token liquidation history (last 10 ticks, values in USD k)
+    let scannerLiqHistory = {};
+    SCANNER_TOKENS.forEach(t => {
+      scannerLiqHistory[t.symbol] = Array.from({ length: 10 }, () => Math.random() * 800 + 100);
+    });
+
+    /**
+     * Generates a realistic-looking random value centered around `base`
+     * with a maximum deviation of `devFraction` (0–1).
+     */
+    function randAround(base, devFraction) {
+      return base * (1 + (Math.random() * 2 - 1) * devFraction);
+    }
+
+    /**
+     * Produces a simulated market snapshot for all tokens.
+     * Replace this function body with real API calls to get live data.
+     */
+    function generateScannerData() {
+      return SCANNER_TOKENS.map(t => {
+        const price        = randAround(t.basePrice, 0.015);
+        const change24h    = (Math.random() * 10 - 5);          // –5 % to +5 %
+        const volActual    = randAround(1_000_000, 0.8);         // current candle vol (USD)
+        const vMA20        = randAround(280_000, 0.3);           // 20-candle avg vol (USD)
+        const volRatio     = volActual / vMA20;                  // Cond 1 numerator/denominator
+        const highLow      = randAround(t.basePrice * 0.012, 0.4); // candle range
+        const closeFromLow = Math.random();                      // 0=closed at low, 1=at high
+        const funding8h    = (Math.random() * 0.25 - 0.02);     // –0.02 % to +0.23 %
+        const marketCap    = t.basePrice * randAround(1e9, 0.05); // rough spot MktCap USD
+        const openInterest = randAround(marketCap * 0.12, 0.5);  // OI USD
+        const oiRatio      = openInterest / marketCap;           // Cond 3
+
+        // Liquidation history: push new tick, shift old one off
+        const liqHist = scannerLiqHistory[t.symbol];
+        liqHist.push(Math.random() * 900 + 50);
+        if (liqHist.length > 10) liqHist.shift();
+
+        // Cond 4: detect short-liquidation exhaustion
+        // Peak = max of last 5 ticks; last tick < peak * 0.3 → exhaustion signal
+        const peak = Math.max(...liqHist.slice(-5));
+        const last = liqHist[liqHist.length - 1];
+        const liqExhaustion = peak > 600 && last < peak * 0.30;
+
+        return {
+          symbol:         t.symbol,
+          exchange:       t.exchange,
+          price,
+          change24h,
+          volRatio,
+          closeFromLow,
+          funding8h,
+          oiRatio,
+          liqExhaustion,
+          // derived booleans
+          condVol:  volRatio > 3.5 && closeFromLow > 0.80,
+          condFund: funding8h > 0.10,
+          condOI:   oiRatio  > 0.15
+        };
+      });
+    }
+
+    /**
+     * Returns a CSS class key ('ok'|'warn'|'high'|'crit') and score (0–4)
+     * based on how many conditions fire.
+     */
+    function riskLevel(row) {
+      const count = [row.condVol, row.condFund, row.condOI, row.liqExhaustion]
+                      .filter(Boolean).length;
+      if (count === 0) return { cls: 'ok',   score: 0, label: 'Normal' };
+      if (count === 1) return { cls: 'warn', score: 1, label: 'Vigilancia' };
+      if (count === 2) return { cls: 'high', score: 2, label: 'Alto' };
+      return               { cls: 'crit', score: 3, label: 'Crítico' };
+    }
+
+    function barClass(ratio, thresholds) {
+      if (ratio >= thresholds[2]) return 'crit';
+      if (ratio >= thresholds[1]) return 'alert';
+      if (ratio >= thresholds[0]) return 'warn';
+      return 'normal';
+    }
+
+    let scannerFilter = 'all';
+    const scannerTableBody  = document.getElementById('scannerTableBody');
+    const scannerBadge      = document.getElementById('scannerBadge');
+    const scannerEmpty      = document.getElementById('scannerEmpty');
+    const scannerLastUpdate = document.getElementById('scannerLastUpdate');
+
+    function formatPrice(p) {
+      if (p >= 1000)  return p.toLocaleString('es-ES', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      if (p >= 1)     return p.toLocaleString('es-ES', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return p.toLocaleString('es-ES', { minimumFractionDigits: 3, maximumFractionDigits: 4 });
+    }
+
+    function renderScannerTable(data) {
+      let filtered = data;
+      if (scannerFilter === 'critical') filtered = data.filter(r => riskLevel(r).score >= 3);
+      else if (scannerFilter === 'vol')  filtered = data.filter(r => r.condVol);
+      else if (scannerFilter === 'fund') filtered = data.filter(r => r.condFund);
+      else if (scannerFilter === 'oi')   filtered = data.filter(r => r.condOI);
+
+      const alertCount = data.filter(r => riskLevel(r).score >= 2).length;
+      scannerBadge.textContent = `${alertCount} alerta${alertCount !== 1 ? 's' : ''}`;
+
+      if (!filtered.length) {
+        scannerTableBody.innerHTML = '';
+        scannerEmpty.classList.remove('hidden');
+        return;
+      }
+      scannerEmpty.classList.add('hidden');
+
+      // Sort by risk descending
+      filtered.sort((a, b) => riskLevel(b).score - riskLevel(a).score);
+
+      scannerTableBody.innerHTML = filtered.map(row => {
+        const risk    = riskLevel(row);
+        const volPct  = Math.min(row.volRatio / 7, 1) * 100;
+        const volCls  = barClass(row.volRatio, [1.5, 2.5, 3.5]);
+        const fundPct = Math.min(Math.max(row.funding8h, 0) / 0.25, 1) * 100;
+        const fundCls = barClass(row.funding8h, [0.04, 0.07, 0.10]);
+        const oiPct   = Math.min(row.oiRatio / 0.30, 1) * 100;
+        const oiCls   = barClass(row.oiRatio, [0.07, 0.11, 0.15]);
+        const changeCls = row.change24h >= 0 ? 'up' : 'down';
+        const changeSign = row.change24h >= 0 ? '+' : '';
+
+        const chips = [];
+        if (row.condVol)        chips.push('<span class="sig-chip vol">VOL ×' + row.volRatio.toFixed(1) + '</span>');
+        if (row.condFund)       chips.push('<span class="sig-chip fund">FUND ' + row.funding8h.toFixed(3) + '%</span>');
+        if (row.condOI)         chips.push('<span class="sig-chip oi">OI ' + (row.oiRatio * 100).toFixed(1) + '%</span>');
+        if (row.liqExhaustion)  chips.push('<span class="sig-chip liq">LIQ↓</span>');
+        if (!chips.length)      chips.push('<span class="sig-chip ok">OK</span>');
+
+        return `<tr>
+          <td>
+            <div class="scanner-token">
+              <div class="scanner-token-icon">${row.symbol.slice(0, 2)}</div>
+              <div>
+                <span>${row.symbol}</span>
+                <span class="scanner-exchange">${row.exchange}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="scanner-price">$${formatPrice(row.price)}</div>
+            <div class="scanner-change ${changeCls}">${changeSign}${row.change24h.toFixed(2)}%</div>
+          </td>
+          <td>
+            <div class="scanner-bar-wrap">
+              <div class="scanner-bar-bg">
+                <div class="scanner-bar-fill ${volCls}" style="width:${volPct.toFixed(1)}%"></div>
+              </div>
+              <span class="scanner-bar-val">×${row.volRatio.toFixed(1)}</span>
+            </div>
+          </td>
+          <td>
+            <div class="scanner-bar-wrap">
+              <div class="scanner-bar-bg">
+                <div class="scanner-bar-fill ${fundCls}" style="width:${fundPct.toFixed(1)}%"></div>
+              </div>
+              <span class="scanner-bar-val">${row.funding8h.toFixed(3)}%</span>
+            </div>
+          </td>
+          <td>
+            <div class="scanner-bar-wrap">
+              <div class="scanner-bar-bg">
+                <div class="scanner-bar-fill ${oiCls}" style="width:${oiPct.toFixed(1)}%"></div>
+              </div>
+              <span class="scanner-bar-val">${(row.oiRatio * 100).toFixed(1)}%</span>
+            </div>
+          </td>
+          <td>
+            <div class="scanner-signals">${chips.join('')}</div>
+          </td>
+          <td>
+            <div class="scanner-score-cell">
+              <div class="scanner-score-ring ${risk.cls}">${risk.score}</div>
+              <div class="scanner-score-label">${risk.label}</div>
+            </div>
+          </td>
+        </tr>`;
+      }).join('');
+
+      const now = new Date();
+      scannerLastUpdate.textContent =
+        `Última actualización: ${now.toLocaleTimeString('es-ES')} · Datos simulados (integrar API Binance/Bybit/OKX)`;
+    }
+
+    function runScanner() {
+      renderScannerTable(generateScannerData());
+    }
+
+    // Filter buttons
+    document.querySelectorAll('[data-scan-filter]').forEach(btn => {
+      btn.addEventListener('click', () => {
+        scannerFilter = btn.dataset.scanFilter;
+        document.querySelectorAll('[data-scan-filter]').forEach(b =>
+          b.classList.toggle('active', b.dataset.scanFilter === scannerFilter));
+        runScanner();
+      });
+    });
+
+    // Initial render + auto-refresh every 30 s
+    runScanner();
+    setInterval(runScanner, 30_000);
   </script>
 </body>
 </html>

@@ -2724,6 +2724,7 @@
         badgeLabel: 'Crypto',
         assetHeading: 'Token',
         signalHeading: 'Funding 8h',
+        signalFilterCode: 'FUND',
         interestHeading: 'OI / MktCap',
         emptyLabel: 'No hay tokens que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar API Binance/Bybit/OKX)',
@@ -2799,6 +2800,7 @@
         badgeLabel: 'Bolsa',
         assetHeading: 'Acción',
         signalHeading: 'Gap Open',
+        signalFilterCode: 'GAP',
         interestHeading: 'OI Opc.',
         emptyLabel: 'No hay acciones que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar feeds NYSE/NASDAQ y opciones)',
@@ -2826,7 +2828,8 @@
           const volRatio      = volActual / vMA20;
           const closeFromLow  = Math.random();
           const signalValue   = Math.random() * 4.5 - 1.2;
-          const interestValue = randAround(0.10, 0.75);
+          const pseudoOptionsBase = asset.basePrice * randAround(350_000_000, 0.45);
+          const interestValue = randAround(pseudoOptionsBase * 0.10, 0.65) / pseudoOptionsBase;
           history.push(Math.random() * 750 + 40);
           if (history.length > 10) history.shift();
           const peak = Math.max(...history.slice(-5));
@@ -2930,14 +2933,28 @@
       scannerAssetHeading.textContent = config.assetHeading;
       scannerSignalHeading.textContent = config.signalHeading;
       scannerInterestHeading.textContent = config.interestHeading;
-      scannerSignalFilterBtn.textContent = config.conditions[1].code;
+      scannerSignalFilterBtn.textContent = config.signalFilterCode;
       scannerEmpty.textContent = config.emptyLabel;
-      scannerConditionLegend.innerHTML = config.conditions.map(condition => `
-        <div class="scanner-cond-card">
-          <div class="cond-title"><span class="sig-chip ${condition.chip}">${condition.code}</span> ${condition.title}</div>
-          <div class="cond-desc">${condition.desc}</div>
-        </div>
-      `).join('');
+      scannerConditionLegend.replaceChildren(...config.conditions.map(condition => {
+        const card = document.createElement('div');
+        card.className = 'scanner-cond-card';
+
+        const title = document.createElement('div');
+        title.className = 'cond-title';
+
+        const chip = document.createElement('span');
+        chip.className = `sig-chip ${condition.chip}`;
+        chip.textContent = condition.code;
+
+        title.append(chip, document.createTextNode(` ${condition.title}`));
+
+        const desc = document.createElement('div');
+        desc.className = 'cond-desc';
+        desc.textContent = condition.desc;
+
+        card.append(title, desc);
+        return card;
+      }));
       document.querySelectorAll('[data-market-mode]').forEach(button => {
         button.classList.toggle('active', button.dataset.marketMode === activeScannerMarket);
       });

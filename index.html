@@ -1354,6 +1354,7 @@
     .scanner-bar-fill.warn   { background: var(--watch); }
     .scanner-bar-fill.alert  { background: var(--elevated); }
     .scanner-bar-fill.crit   { background: var(--critical); }
+    .scanner-bar-fill.neg    { background: var(--accent-2); }
     .scanner-bar-val {
       font-size: 11px;
       font-variant-numeric: tabular-nums;
@@ -2725,6 +2726,7 @@
         assetHeading: 'Token',
         signalHeading: 'Funding 8h',
         signalFilterCode: 'FUND',
+        signalFilterKey: 'fund',
         interestHeading: 'OI / MktCap',
         emptyLabel: 'No hay tokens que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar API Binance/Bybit/OKX)',
@@ -2783,9 +2785,11 @@
           return `${(value * 100).toFixed(1)}%`;
         },
         getSignalBarPct(value) {
-          return Math.min(Math.max(value, 0) / 0.25, 1) * 100;
+          if (value < 0) return Math.min(Math.abs(value) / 0.02, 1) * 100;
+          return Math.min(value / 0.25, 1) * 100;
         },
         getSignalBarClass(value) {
+          if (value < 0) return 'neg';
           return barClass(value, [0.04, 0.07, 0.10]);
         },
         getInterestBarPct(value) {
@@ -2801,6 +2805,7 @@
         assetHeading: 'Acción',
         signalHeading: 'Gap Open',
         signalFilterCode: 'GAP',
+        signalFilterKey: 'gap',
         interestHeading: 'OI Opc.',
         emptyLabel: 'No hay acciones que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar feeds NYSE/NASDAQ y opciones)',
@@ -2828,8 +2833,8 @@
           const volRatio      = volActual / vMA20;
           const closeFromLow  = Math.random();
           const signalValue   = Math.random() * 4.5 - 1.2;
-          const pseudoOptionsBase = asset.basePrice * randAround(350_000_000, 0.45);
-          const interestValue = randAround(pseudoOptionsBase * 0.10, 0.65) / pseudoOptionsBase;
+          const optionsMarketBase = asset.basePrice * randAround(350_000_000, 0.45);
+          const interestValue = randAround(optionsMarketBase * 0.10, 0.65) / optionsMarketBase;
           history.push(Math.random() * 750 + 40);
           if (history.length > 10) history.shift();
           const peak = Math.max(...history.slice(-5));
@@ -2934,6 +2939,7 @@
       scannerSignalHeading.textContent = config.signalHeading;
       scannerInterestHeading.textContent = config.interestHeading;
       scannerSignalFilterBtn.textContent = config.signalFilterCode;
+      scannerSignalFilterBtn.dataset.scanFilter = config.signalFilterKey;
       scannerEmpty.textContent = config.emptyLabel;
       scannerConditionLegend.replaceChildren(...config.conditions.map(condition => {
         const card = document.createElement('div');
@@ -2969,9 +2975,10 @@
     function renderScannerTable(data) {
       const config = QUANT_MARKETS[activeScannerMarket];
       let filtered = data;
+      const signalFilterKey = config.signalFilterKey;
       if (scannerFilter === 'critical') filtered = data.filter(r => riskLevel(r).score >= 3);
       else if (scannerFilter === 'vol')  filtered = data.filter(r => r.condVol);
-      else if (scannerFilter === 'fund') filtered = data.filter(r => r.condSignal);
+      else if (scannerFilter === signalFilterKey) filtered = data.filter(r => r.condSignal);
       else if (scannerFilter === 'oi')   filtered = data.filter(r => r.condInterest);
 
       const alertCount = data.filter(r => riskLevel(r).score >= 2).length;
@@ -3078,7 +3085,11 @@
     document.querySelectorAll('[data-market-mode]').forEach(button => {
       button.addEventListener('click', () => {
         if (button.dataset.marketMode === activeScannerMarket) return;
+        const previousSignalKey = QUANT_MARKETS[activeScannerMarket].signalFilterKey;
         activeScannerMarket = button.dataset.marketMode;
+        if (scannerFilter === previousSignalKey) {
+          scannerFilter = QUANT_MARKETS[activeScannerMarket].signalFilterKey;
+        }
         runScanner();
       });
     });

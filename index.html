@@ -2438,8 +2438,8 @@
 
       // Subtle map frame for visual crispness
       ctx.strokeStyle = 'rgba(96, 165, 250, 0.26)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(rect.ox + 0.5, rect.oy + 0.5, rect.mW - 1, rect.mH - 1);
+      ctx.lineWidth = 1 / dpr;
+      ctx.strokeRect(rect.ox, rect.oy, rect.mW, rect.mH);
     }
 
     // ── Render new marker types ────────────────────────────────────────────

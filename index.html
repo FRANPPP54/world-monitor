@@ -1660,24 +1660,7 @@
               <button class="scanner-market-btn active" data-market-mode="crypto">Crypto</button>
               <button class="scanner-market-btn" data-market-mode="stocks">Bolsa</button>
             </div>
-            <div class="scanner-condition-legend" id="scannerConditionLegend">
-              <div class="scanner-cond-card">
-                <div class="cond-title"><span class="sig-chip vol">VOL</span> Vela de Volumen</div>
-                <div class="cond-desc">Volumen de la vela &gt; MA20 × 3.5 y cierre cerca del máximo (&gt;80 %).</div>
-              </div>
-              <div class="scanner-cond-card">
-                <div class="cond-title"><span class="sig-chip fund">FUND</span> Funding Rate</div>
-                <div class="cond-desc">Tasa 8 h &gt; 0.1 % (&gt;100 % anualizado). Longs insostenibles.</div>
-              </div>
-              <div class="scanner-cond-card">
-                <div class="cond-title"><span class="sig-chip oi">OI</span> Interés Abierto</div>
-                <div class="cond-desc">OI / MarketCap Spot &gt; 15 %. Mercado sobreapantallado.</div>
-              </div>
-              <div class="scanner-cond-card">
-                <div class="cond-title"><span class="sig-chip liq">LIQ</span> Agotamiento Cortos</div>
-                <div class="cond-desc">Liquidaciones de cortos caen &gt;70 % tras pico. Subida sin combustible.</div>
-              </div>
-            </div>
+            <div class="scanner-condition-legend" id="scannerConditionLegend"></div>
             <div class="scanner-toolbar">
               <button class="scanner-filter-btn active" data-scan-filter="all">Todos</button>
               <button class="scanner-filter-btn" data-scan-filter="critical">Críticos (&ge;3)</button>
@@ -2836,8 +2819,9 @@
           const volRatio      = volActual / vMA20;
           const closeFromLow  = Math.random();
           const signalValue   = Math.random() * 4.5 - 1.2;
-          const optionsMarketBase = asset.basePrice * randAround(350_000_000, 0.45);
-          const interestValue = randAround(optionsMarketBase * 0.10, 0.65) / optionsMarketBase;
+          const optionsMarketBase = randAround(asset.basePrice * 12_000_000 + 200_000_000, 0.45);
+          const optionsOpenInterest = randAround(asset.basePrice * 1_800_000 + 28_000_000, 0.55);
+          const interestValue = optionsOpenInterest / optionsMarketBase;
           history.push(Math.random() * 750 + 40);
           if (history.length > 10) history.shift();
           const peak = Math.max(...history.slice(-5));
@@ -2938,6 +2922,8 @@
 
     function renderScannerMeta() {
       const config = QUANT_MARKETS[activeScannerMarket];
+      const validFilters = new Set(['all', 'critical', 'vol', 'oi', config.signalFilterKey]);
+      if (!validFilters.has(scannerFilter)) scannerFilter = 'all';
       scannerAssetHeading.textContent = config.assetHeading;
       scannerSignalHeading.textContent = config.signalHeading;
       scannerInterestHeading.textContent = config.interestHeading;

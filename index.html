@@ -359,11 +359,13 @@
     .world-stage {
       aspect-ratio: 2 / 1;
       border-radius: 24px;
-      border: 1px solid rgba(0, 200, 160, 0.28);
+      border: 1px solid rgba(82, 176, 255, 0.24);
       position: relative;
       overflow: hidden;
-      background: #030d0b;
-      box-shadow: inset 0 0 0 1px rgba(0, 200, 160, 0.08), 0 0 60px rgba(0, 120, 90, 0.15);
+      background: radial-gradient(circle at 50% 42%, rgba(16, 40, 66, 0.56), #020b14 72%);
+      box-shadow:
+        inset 0 0 0 1px rgba(82, 176, 255, 0.09),
+        0 16px 36px rgba(2, 10, 22, 0.45);
     }
 
     .world-stage::after {
@@ -383,6 +385,8 @@
       inset: 0;
       width: 100%;
       height: 100%;
+      image-rendering: auto;
+      image-rendering: smooth;
     }
 
     /* Marker tooltip */
@@ -456,23 +460,23 @@
       z-index: 5;
     }
     .conflict-ring {
-      width: 54px;
-      height: 54px;
+      width: 46px;
+      height: 46px;
       border-radius: 50%;
-      border: 2px dashed rgba(220, 50, 50, 0.85);
-      background: rgba(180, 30, 30, 0.18);
-      box-shadow: 0 0 14px rgba(220, 50, 50, 0.3), inset 0 0 14px rgba(220, 50, 50, 0.08);
+      border: 2px dashed rgba(248, 113, 113, 0.72);
+      background: rgba(185, 28, 28, 0.14);
+      box-shadow: 0 0 10px rgba(248, 113, 113, 0.26), inset 0 0 10px rgba(248, 113, 113, 0.1);
       animation: conflictPulse 2.2s ease-in-out infinite;
       display: flex;
       align-items: center;
       justify-content: center;
     }
     .conflict-center {
-      width: 10px;
-      height: 10px;
+      width: 8px;
+      height: 8px;
       border-radius: 50%;
       background: #ef4444;
-      box-shadow: 0 0 8px rgba(239, 68, 68, 0.85);
+      box-shadow: 0 0 8px rgba(239, 68, 68, 0.7);
     }
     @keyframes conflictPulse {
       0%, 100% { transform: scale(1); opacity: 1; }
@@ -487,14 +491,14 @@
       z-index: 5;
     }
     .hotspot-dot {
-      width: 16px;
-      height: 16px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
-      background: #f97316;
-      box-shadow: 0 0 10px rgba(249, 115, 22, 0.85), 0 0 22px rgba(249, 115, 22, 0.35);
+      background: #fb923c;
+      box-shadow: 0 0 8px rgba(251, 146, 60, 0.75), 0 0 16px rgba(251, 146, 60, 0.28);
       animation: hotspotPulse 2.5s ease-in-out infinite;
     }
-    .hotspot-dot.red { background: #ef4444; box-shadow: 0 0 10px rgba(239, 68, 68, 0.85), 0 0 22px rgba(239, 68, 68, 0.35); }
+    .hotspot-dot.red { background: #f87171; box-shadow: 0 0 8px rgba(248, 113, 113, 0.72), 0 0 16px rgba(248, 113, 113, 0.3); }
     @keyframes hotspotPulse {
       0%, 100% { transform: scale(1); }
       50% { transform: scale(1.22); }
@@ -1185,8 +1189,8 @@
       .iceberg-label,
       .iceberg-area { display: none; }
       .conflict-ring { width: 40px; height: 40px; }
-      .conflict-center { width: 9px; height: 9px; }
-      .hotspot-dot { width: 13px; height: 13px; }
+      .conflict-center { width: 7px; height: 7px; }
+      .hotspot-dot { width: 10px; height: 10px; }
       .marker-warning { font-size: 14px; }
       .storm-icon { width: 22px; height: 22px; }
       .iceberg-icon { width: 18px; height: 18px; }
@@ -2355,9 +2359,15 @@
       const H = stage.offsetHeight;
       if (W === 0 || H === 0) return;
 
-      tacticalCanvas.width = W;
-      tacticalCanvas.height = H;
+      const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
+      tacticalCanvas.width = Math.round(W * dpr);
+      tacticalCanvas.height = Math.round(H * dpr);
+      tacticalCanvas.style.width = `${W}px`;
+      tacticalCanvas.style.height = `${H}px`;
       const ctx = tacticalCanvas.getContext('2d');
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      ctx.imageSmoothingEnabled = true;
+      ctx.imageSmoothingQuality = 'high';
 
       // Size the marker overlay to the letterboxed map rect
       const rect = getMapRect(W, H);
@@ -2370,12 +2380,16 @@
       }
 
       // Background
-      ctx.fillStyle = '#030d0b';
+      const ocean = ctx.createLinearGradient(0, rect.oy, 0, rect.oy + rect.mH);
+      ocean.addColorStop(0, '#061425');
+      ocean.addColorStop(0.55, '#031420');
+      ocean.addColorStop(1, '#020c14');
+      ctx.fillStyle = ocean;
       ctx.fillRect(0, 0, W, H);
 
       // Grid lines (only over the map area)
-      ctx.strokeStyle = 'rgba(0, 180, 140, 0.25)';
-      ctx.lineWidth = 0.6;
+      ctx.strokeStyle = 'rgba(56, 189, 248, 0.2)';
+      ctx.lineWidth = 0.7;
       const gridCols = Math.ceil(rect.mW / 40);
       const gridRows = Math.ceil(rect.mH / 40);
       for (let i = 0; i <= gridCols; i++) {
@@ -2395,28 +2409,36 @@
           if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
         });
         ctx.closePath();
-        ctx.fillStyle = 'rgba(7, 98, 82, 0.72)';
+        const landGrad = ctx.createLinearGradient(rect.ox, rect.oy, rect.ox, rect.oy + rect.mH);
+        landGrad.addColorStop(0, 'rgba(56, 189, 248, 0.24)');
+        landGrad.addColorStop(1, 'rgba(16, 185, 129, 0.34)');
+        ctx.fillStyle = landGrad;
         ctx.fill();
         ctx.save();
         ctx.lineJoin = 'round';
         ctx.lineCap = 'round';
-        ctx.strokeStyle = 'rgba(2, 24, 18, 0.95)';
-        ctx.lineWidth = 2.2;
+        ctx.strokeStyle = 'rgba(5, 20, 34, 0.95)';
+        ctx.lineWidth = 1.8;
         ctx.stroke();
-        ctx.strokeStyle = 'rgba(140, 255, 225, 0.72)';
-        ctx.lineWidth = 1.15;
+        ctx.strokeStyle = 'rgba(147, 197, 253, 0.72)';
+        ctx.lineWidth = 0.95;
         ctx.stroke();
         ctx.restore();
       });
 
-      // Subtle radar glow at map center
+      // Subtle center glow
       const cx = rect.ox + rect.mW * 0.5;
       const cy = rect.oy + rect.mH * 0.45;
       const radGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, Math.max(rect.mW, rect.mH) * 0.45);
-      radGrad.addColorStop(0, 'rgba(0, 180, 140, 0.07)');
+      radGrad.addColorStop(0, 'rgba(56, 189, 248, 0.08)');
       radGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
       ctx.fillStyle = radGrad;
       ctx.fillRect(0, 0, W, H);
+
+      // Subtle map frame for visual crispness
+      ctx.strokeStyle = 'rgba(96, 165, 250, 0.26)';
+      ctx.lineWidth = 1;
+      ctx.strokeRect(rect.ox + 0.5, rect.oy + 0.5, rect.mW - 1, rect.mH - 1);
     }
 
     // ── Render new marker types ────────────────────────────────────────────

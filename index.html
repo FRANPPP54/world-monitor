@@ -2868,6 +2868,7 @@
       }
     };
 
+    const SCANNER_FILTER_KEYS = ['all', 'critical', 'vol', 'signal', 'oi'];
     let activeScannerMarket = 'crypto';
     const scannerHistory = {};
     Object.entries(QUANT_MARKETS).forEach(([mode, config]) => {
@@ -2924,7 +2925,7 @@
 
     function renderScannerMeta() {
       const config = QUANT_MARKETS[activeScannerMarket];
-      const validFilters = new Set(['all', 'critical', 'vol', 'oi', 'signal']);
+      const validFilters = new Set(SCANNER_FILTER_KEYS);
       if (!validFilters.has(scannerFilter)) scannerFilter = 'all';
       scannerAssetHeading.textContent = config.assetHeading;
       scannerSignalHeading.textContent = config.signalHeading;
@@ -2973,7 +2974,6 @@
       else if (scannerFilter === 'vol')  filtered = data.filter(r => r.condVol);
       else if (scannerFilter === 'signal') filtered = data.filter(r => r.condSignal);
       else if (scannerFilter === 'oi')   filtered = data.filter(r => r.condInterest);
-      else filtered = [];
 
       const alertCount = data.filter(r => riskLevel(r).score >= 2).length;
       scannerBadge.textContent = `${config.badgeLabel} · ${alertCount} alerta${alertCount !== 1 ? 's' : ''}`;

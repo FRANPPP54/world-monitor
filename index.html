@@ -1665,7 +1665,7 @@
               <button class="scanner-filter-btn active" data-scan-filter="all">Todos</button>
               <button class="scanner-filter-btn" data-scan-filter="critical">Críticos (&ge;3)</button>
               <button class="scanner-filter-btn" data-scan-filter="vol">VOL</button>
-              <button class="scanner-filter-btn" data-scan-filter="fund" id="scannerSignalFilterBtn">FUND</button>
+              <button class="scanner-filter-btn" data-scan-filter="signal" id="scannerSignalFilterBtn">FUND</button>
               <button class="scanner-filter-btn" data-scan-filter="oi">OI</button>
               <div class="scanner-legend">
                 <span><span class="scanner-legend-dot" style="background:var(--critical)"></span>Crítico</span>
@@ -2710,7 +2710,6 @@
         assetHeading: 'Token',
         signalHeading: 'Funding 8h',
         signalFilterCode: 'FUND',
-        signalFilterKey: 'fund',
         signalChipClass: 'fund',
         interestHeading: 'OI / MktCap',
         interestFilterCode: 'OI',
@@ -2791,10 +2790,9 @@
         assetHeading: 'Acción',
         signalHeading: 'Gap Open',
         signalFilterCode: 'GAP',
-        signalFilterKey: 'gap',
         signalChipClass: 'gap',
         interestHeading: 'OI Opc.',
-        interestFilterCode: 'OI Opc.',
+        interestFilterCode: 'OI',
         emptyLabel: 'No hay acciones que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar feeds NYSE/NASDAQ y opciones)',
         conditions: [
@@ -2926,14 +2924,13 @@
 
     function renderScannerMeta() {
       const config = QUANT_MARKETS[activeScannerMarket];
-      const validFilters = new Set(['all', 'critical', 'vol', 'oi', config.signalFilterKey]);
+      const validFilters = new Set(['all', 'critical', 'vol', 'oi', 'signal']);
       if (!validFilters.has(scannerFilter)) scannerFilter = 'all';
       scannerAssetHeading.textContent = config.assetHeading;
       scannerSignalHeading.textContent = config.signalHeading;
       scannerInterestHeading.textContent = config.interestHeading;
       scannerSignalFilterBtn.textContent = config.signalFilterCode;
       scannerInterestFilterBtn.textContent = config.interestFilterCode;
-      scannerSignalFilterBtn.dataset.scanFilter = config.signalFilterKey;
       scannerEmpty.textContent = config.emptyLabel;
       scannerConditionLegend.replaceChildren(...config.conditions.map(condition => {
         const card = document.createElement('div');
@@ -2972,11 +2969,11 @@
     function renderScannerTable(data) {
       const config = QUANT_MARKETS[activeScannerMarket];
       let filtered = data;
-      const signalFilterKey = config.signalFilterKey;
       if (scannerFilter === 'critical') filtered = data.filter(r => riskLevel(r).score >= 3);
       else if (scannerFilter === 'vol')  filtered = data.filter(r => r.condVol);
-      else if (scannerFilter === signalFilterKey) filtered = data.filter(r => r.condSignal);
+      else if (scannerFilter === 'signal') filtered = data.filter(r => r.condSignal);
       else if (scannerFilter === 'oi')   filtered = data.filter(r => r.condInterest);
+      else filtered = [];
 
       const alertCount = data.filter(r => riskLevel(r).score >= 2).length;
       scannerBadge.textContent = `${config.badgeLabel} · ${alertCount} alerta${alertCount !== 1 ? 's' : ''}`;

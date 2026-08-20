@@ -2583,12 +2583,12 @@
       ctx.clip();
       ctx.strokeStyle = 'rgba(189, 255, 238, 0.035)';
       ctx.lineWidth = 1;
+      ctx.beginPath();
       for (let y = rect.oy + 2; y < rect.oy + rect.mH; y += 4) {
-        ctx.beginPath();
         ctx.moveTo(rect.ox, y);
         ctx.lineTo(rect.ox + rect.mW, y);
-        ctx.stroke();
       }
+      ctx.stroke();
       ctx.restore();
     }
 

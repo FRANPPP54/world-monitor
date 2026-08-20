@@ -2713,6 +2713,7 @@
         signalFilterKey: 'fund',
         signalChipClass: 'fund',
         interestHeading: 'OI / MktCap',
+        interestFilterCode: 'OI',
         emptyLabel: 'No hay tokens que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar API Binance/Bybit/OKX)',
         conditions: [
@@ -2793,6 +2794,7 @@
         signalFilterKey: 'gap',
         signalChipClass: 'gap',
         interestHeading: 'OI Opc.',
+        interestFilterCode: 'OI Opc.',
         emptyLabel: 'No hay acciones que cumplan el filtro seleccionado.',
         updateLabel: 'Datos simulados (integrar feeds NYSE/NASDAQ y opciones)',
         conditions: [
@@ -2856,6 +2858,7 @@
           return Math.min(Math.max(value, 0) / 4, 1) * 100;
         },
         getSignalBarClass(value) {
+          if (value < 0) return 'neg';
           return barClass(value, [0.8, 1.3, 1.8]);
         },
         getInterestBarPct(value) {
@@ -2915,6 +2918,7 @@
     const scannerSignalHeading = document.getElementById('scannerSignalHeading');
     const scannerInterestHeading = document.getElementById('scannerInterestHeading');
     const scannerSignalFilterBtn = document.getElementById('scannerSignalFilterBtn');
+    const scannerInterestFilterBtn = document.querySelector('[data-scan-filter="oi"]');
     const scannerTableBody  = document.getElementById('scannerTableBody');
     const scannerBadge      = document.getElementById('scannerBadge');
     const scannerEmpty      = document.getElementById('scannerEmpty');
@@ -2928,6 +2932,7 @@
       scannerSignalHeading.textContent = config.signalHeading;
       scannerInterestHeading.textContent = config.interestHeading;
       scannerSignalFilterBtn.textContent = config.signalFilterCode;
+      scannerInterestFilterBtn.textContent = config.interestFilterCode;
       scannerSignalFilterBtn.dataset.scanFilter = config.signalFilterKey;
       scannerEmpty.textContent = config.emptyLabel;
       scannerConditionLegend.replaceChildren(...config.conditions.map(condition => {

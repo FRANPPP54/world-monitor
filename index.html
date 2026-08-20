@@ -2380,7 +2380,7 @@
       }
 
       // Background
-      const ocean = ctx.createLinearGradient(0, rect.oy, 0, rect.oy + rect.mH);
+      const ocean = ctx.createLinearGradient(0, 0, 0, H);
       ocean.addColorStop(0, '#061425');
       ocean.addColorStop(0.55, '#031420');
       ocean.addColorStop(1, '#020c14');
@@ -2402,6 +2402,10 @@
       }
 
       // Draw continents
+      const landGrad = ctx.createLinearGradient(rect.ox, rect.oy, rect.ox, rect.oy + rect.mH);
+      landGrad.addColorStop(0, 'rgba(56, 189, 248, 0.24)');
+      landGrad.addColorStop(1, 'rgba(16, 185, 129, 0.34)');
+
       continents.forEach(poly => {
         ctx.beginPath();
         poly.forEach(([nx, ny], i) => {
@@ -2409,9 +2413,6 @@
           if (i === 0) ctx.moveTo(px, py); else ctx.lineTo(px, py);
         });
         ctx.closePath();
-        const landGrad = ctx.createLinearGradient(rect.ox, rect.oy, rect.ox, rect.oy + rect.mH);
-        landGrad.addColorStop(0, 'rgba(56, 189, 248, 0.24)');
-        landGrad.addColorStop(1, 'rgba(16, 185, 129, 0.34)');
         ctx.fillStyle = landGrad;
         ctx.fill();
         ctx.save();

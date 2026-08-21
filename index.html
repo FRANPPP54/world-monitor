@@ -2530,7 +2530,7 @@
       const H = stage.offsetHeight;
       if (W === 0 || H === 0) return;
 
-      const dpr = window.devicePixelRatio || 1;
+      const dpr = Math.max(1, Math.min(window.devicePixelRatio || 1, 2));
       tacticalCanvas.width = Math.round(W * dpr);
       tacticalCanvas.height = Math.round(H * dpr);
       tacticalCanvas.style.width = W + 'px';
@@ -2564,8 +2564,8 @@
       ctx.fillStyle = plate;
       ctx.fillRect(rect.ox, rect.oy, rect.mW, rect.mH);
       ctx.strokeStyle = 'rgba(78, 226, 194, 0.24)';
-      ctx.lineWidth = 1;
-      ctx.strokeRect(rect.ox + 0.5, rect.oy + 0.5, rect.mW - 1, rect.mH - 1);
+      ctx.lineWidth = 1 / dpr;
+      ctx.strokeRect(rect.ox, rect.oy, rect.mW, rect.mH);
 
       // Subtle radar glow at map center
       const cx = rect.ox + rect.mW * 0.5;
